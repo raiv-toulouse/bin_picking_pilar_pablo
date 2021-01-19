@@ -9,9 +9,6 @@ Bin Picking avec Deep Learning, voir [ici](https://www.youtube.com/watch?v=ydh_A
 2. Follow [Universal Robot Tutorial](https://academy.universal-robots.com/es/formacion-online/formacion-online-de-cb3/)
 3. Create your catkin_workspace: 
 4. Install the following:
-- [Universal Robot Ros driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver) 
-- Package [ur_icam]()
-
    `cd catkin_ws/src`
    `git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver`
 
