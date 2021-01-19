@@ -3,6 +3,10 @@ Bin Picking research project
 
 Bin Picking avec Deep Learning, voir [ici](https://www.youtube.com/watch?v=ydh_AdWZflA)
 
+## Project Description
+
+## Architecture
+
 ## Requirements
 
 1. Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) to have a better understanding of how ROS works
@@ -31,9 +35,14 @@ Bin Picking avec Deep Learning, voir [ici](https://www.youtube.com/watch?v=ydh_A
 5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
    - `roslaunch ur_calibration calibration_correction.launch robot_ip:=10.31.56.102 target_filename:="${HOME}/Calibration/ur3_calibration.yaml"`
 
-6. In the UR Robot, configure the IP of the computer for the communication. 
+6. Raspberry Installation:
+- Install ROS and a catkin woskpace in Raspberry
+- Install Arduino  and import ROS serial library for the Arduino connected to the Raspberry
+- Install the usb_camera package
+- Find the arduino port (probably this step is not necessary)
 
-Note: dont forget to configure ROS_MASTER in every computer 
+7. Don't forget to configure ROS_MASTER in every computer and in the Raspberry to connect all the nodes in the architecture
+
 
 ## Environment Setup 
 Note: Please enter the each of the following commands in a new terminal
@@ -48,9 +57,9 @@ If this is not the case, click on the Installation tab then External Control to 
 
 Finally, you have to press the small Play button at the bottom of the graphical interface. 
 If you now return to the roslaunch terminal, the following lines should have appeared: 
- *Robot requested program*
- *Sent program to robot*
- *Robot ready to receive control commands*
+ *Robot requested program*  
+ *Sent program to robot*  
+ *Robot ready to receive control commands*  
 
 - `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
