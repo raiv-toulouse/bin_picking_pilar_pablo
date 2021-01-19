@@ -13,6 +13,19 @@ The objects in the environment are distributed in a box randomly so the system w
 
 ![Architecture](/readme-images/ROS_architecture.png)
 
+ROS will be the tool used to interact and communicate with the robot. 
+
+- **AI Manager** Package containing all the Artificial Intelligence code. 
+- **Robot Controller** - Package for controlling, moving and interacting with the robot. 
+- **Arduino** - Code used for detection, already load in the arduino. Included for future modifications and improvements
+- **Raspberry** - Usb_cam package included
+- **Universal Robot** - UR robot used in the proyect
+
+You can find a more detailed explanation inside each folder.
+
+Disclaimer: This project works with Ubuntu 18.08 and ROS Melodic. It's probable that for some parts of the project, different versions of python might be needed. 
+It is **very recommended** to work with conda environments. 
+
 
 ## Requirements
 
