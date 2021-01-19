@@ -11,7 +11,7 @@ The objects in the environment are distributed in a box randomly so the system w
 
 ## Architecture
 
-![Alt text](home/pilar/catkin_ws_melodic/src/ai_manager/readme-images?raw=true "Architecture")
+![Architecture](/home/pilar/catkin_ws_melodic/src/ai_manager/readme-images/ROS_architecture.png)
 
 
 ## Requirements
