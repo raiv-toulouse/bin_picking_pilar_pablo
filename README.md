@@ -48,7 +48,9 @@ If this is not the case, click on the Installation tab then External Control to 
 
 Finally, you have to press the small Play button at the bottom of the graphical interface. 
 If you now return to the roslaunch terminal, the following lines should have appeared: 
-
+ Robot requested program
+ Sent program to robot
+ Robot ready to receive control commands.
 
 - `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
