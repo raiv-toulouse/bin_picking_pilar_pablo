@@ -28,7 +28,7 @@ Bin Picking avec Deep Learning, voir [ici](https://www.youtube.com/watch?v=ydh_A
    `catkin_make`
    `ls -l`
 
-5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (Put the IP of the computer that will connect to the robot)
+5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
    - `roslaunch ur_calibration calibration_correction.launch robot_ip:=10.31.56.102 target_filename:="${HOME}/Calibration/ur3_calibration.yaml"`
 
 6. In the UR Robot, configure the IP of the computer for the communication. 
@@ -40,8 +40,17 @@ Note: Please enter the each of the following commands in a new terminal
 
 1. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
 
-- `roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_config:=${HOME}/Calibration/ur3_calibration.yaml` (Pilar)
-- `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch` (Pilar)
+- `roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_config:=${HOME}/Calibration/ur3_calibration.yaml`
+
+On the robot, a program with this instruction has been saved under the name of 'communication_with_ros.urp')
+By clicking on the Command tab after having selected the ExternalControl command, make sure that the Host IP is correct (IP of the computer on which the previous roslaunch command was launched).
+If this is not the case, click on the Installation tab then External Control to correct this. 
+
+Finally, you have to press the small Play button at the bottom of the graphical interface. 
+If you now return to the roslaunch terminal, the following lines should have appeared: 
+
+
+- `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
 2. Initialize the Robot Controller. Same computer as before
 - `rosrun robot_controller main.py` 
