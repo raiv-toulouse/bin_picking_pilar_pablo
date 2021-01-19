@@ -4,14 +4,21 @@ Bin Picking research project
 Bin Picking avec Deep Learning, voir [ici](https://www.youtube.com/watch?v=ydh_AdWZflA)
 
 ## Project Description
+The objective of the project is to implement a Pick and Place task with a robotic arm using Artificial Intelligence techniques such as Image Recognition and Reinforcement Learning.  
+
+The objects in the environment are distributed in a box randomly so the system will need to identify the objects and find an optimal set of movements for completing the task.  
+
 
 ## Architecture
+
+![Alt text](home/pilar/catkin_ws_melodic/src/ai_manager/readme-images?raw=true "Architecture")
+
 
 ## Requirements
 
 1. Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) to have a better understanding of how ROS works
 2. Follow [Universal Robot Tutorial](https://academy.universal-robots.com/es/formacion-online/formacion-online-de-cb3/)
-3. Create your catkin_workspace: 
+3. Create your catkin_workspace
 4. Install the following:
    `cd catkin_ws/src`
    `git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver`
