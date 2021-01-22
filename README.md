@@ -31,7 +31,7 @@ It is **very recommended** to work with conda environments.
 1. Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) to have a better understanding of how ROS works
 2. Follow [Universal Robot Tutorial](https://academy.universal-robots.com/es/formacion-online/formacion-online-de-cb3/)
 3. Create your catkin_workspace
-4. Install the following:
+4. Install the following:  
    `cd catkin_ws/src`
    `git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver`
 
@@ -64,12 +64,14 @@ It is **very recommended** to work with conda environments.
    -`export ROS_MASTER=10.31.56.80` (IP Of the ROS_MASTER)
    -`export ROS_IP=10.31.56.75` (IP of nodes)
 
+8. Install Conda to work with environments. Due to ROS packages and versions sometimes python2 or python3 will be needed. You can create and replicate the environments from folder **conda_environments** with command `conda env create -f environment.yml`
+  
+
 
 ## Environment Setup 
 Note: Please enter the each of the following commands in a new terminal
 
 1. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
-
 - `roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_config:=${HOME}/Calibration/ur3_calibration.yaml`
 
 On the robot, a program with this instruction has been saved under the name of 'communication_with_ros.urp')
@@ -84,7 +86,8 @@ If you now return to the roslaunch terminal, the following lines should have app
 
 - `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
-2. Initialize the Robot Controller. Same computer as before
+2. Initialize the Robot Controller. Same computer as before (Python2)
+- `conda activate python2` (if you are using conda environments)  
 - `rosrun robot_controller main.py` 
 
 3. Raspberry Pi. Initialize the camera, and the information from arduino. 
@@ -94,7 +97,8 @@ If you now return to the roslaunch terminal, the following lines should have app
 4. Initialize the other camera. It can run in any computer
 - `usb_cam usb_cam-test.launch`
 
-5. Run AI Manager (Use it in the DL Server)
+5. Run AI Manager (Use it in the DL Server) (Python3)
+- `conda activate python3` (if you are using conda environments)  
 - `rosrun ai_manager main.py`
 
 
