@@ -58,18 +58,21 @@ It is **very recommended** to work with conda environments.
 - Install ROS and a catkin woskpace in Raspberry
 - Install Arduino  and import ROS serial library for the Arduino connected to the Raspberry
 - Install the [usb_camera package](https://github.com/ros-drivers/usb_cam)
-- Find the arduino port (probably this step is not necessary)
+   - Clone the repository in src
+   - `catkin_make`  
+   - `source devel/setup.bash`
+- Find the arduino port (probably thie port is: /dev/ttyACM0/)
 
 7. Don't forget to configure **ROS_MASTER** and **ROS_IP** in every computer and in the Raspberry to connect all the nodes in the architecture
    -`export ROS_MASTER=10.31.56.80` (IP Of the ROS_MASTER)
    -`export ROS_IP=10.31.56.75` (IP of nodes)
 
-8. Install **Conda** to work with environments. Due to ROS packages and versions sometimes python2 or python3 will be needed. You can create and replicate the environments from folder **conda_environments** with command `conda env create -f *name_of_file*.yml`
+8. Install **Conda** to work with environments. Due to ROS packages and versions sometimes python2 or python3 will be needed. You can create and replicate the environments from folder **conda_environments** with command `conda env create -f name_of_file.yml`
   
 
 
 ## Environment Setup 
-Note: Please enter the each of the following commands in a new terminal
+**Note**: Please enter the each of the following commands in a new terminal
 
 1. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
 - `roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_config:=${HOME}/Calibration/ur3_calibration.yaml`
@@ -88,20 +91,26 @@ If you now return to the roslaunch terminal, the following lines should have app
 
 2. Initialize the **Robot Controller**. Same computer as before (Python2)
 - `conda activate python2` (if you are using conda environments)  
-- `rosrun robot_controller main.py` 
+- `rosrun robot_controller main.py`  
+   You should see the robot moving to the place position and coming back to the center. If not, probably something went worng in the previous steps. 
 
-3. **Raspberry Pi** Initialize the camera, and the information from arduino. 
+3. **Raspberry Pi** Initialize the camera, and the information from arduino. You can connect with the raspberry via ssh or with the screen and a keyboard.
+-  Connection via ssh: `ssh pi@10.31.56.X`, (X can vary) Ex: Put the password: 123456
 - `roslaunch usb_cam usb_cam-test.launch`
 - `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0/`
+   Don't forget to check if the IP changed (Keep the ROS_MASTER and the ROS_IP up to date) (Maybe you can use the screen and the keyboard to check the IP if ssh is not working)
 
-4. Initialize the other camera. It can run in any computer
+4. Initialize the **other camera**. It can run in any computer
 - `usb_cam usb_cam-test.launch`
 
 5. Run **AI Manager** (Use it in the DL Server) (Python3)
+- SSH to access the DL (or any remote computer) `ssh user@10.31.56.62` Put the password. Remember the IPs can change 
 - `conda activate python3` (if you are using conda environments)  
 - `rosrun ai_manager main.py`
+ If all the steps before were done correctly,the robot should start moving. Actions should be seen in the cmd. If it doesn't and robot controller is running, it maybe because is waiting for the image. Go back to step 3, launch again the cameras. On the other hand, if the robot suddenly stops moving  the most probable cause is that ROS serial node in Raspebrry Pi is not working correctly. Go back to step 3 and check everything. 
 
-**Note**: when using **usb_cam** you should be able to see the images taken from te cameras. Both from the onboard camera on the robot, and the upper camera with the whole environment. 
+**Note**: when using **usb_cam** you should be able to see the images taken from the cameras. Both from the onboard camera on the robot, and the upper camera with the whole environment. 
+
 
 
 
