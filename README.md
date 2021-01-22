@@ -22,7 +22,7 @@ ROS will be the tool used to interact and communicate with the robot.
 
 You can find a more detailed explanation inside each folder.
 
-Disclaimer: This project works with Ubuntu 18.08 and ROS Melodic. It's probable that for some parts of the project, different versions of python might be needed. 
+Disclaimer: This project works with **Ubuntu 18** and **ROS Melodic**. It's probable that for some parts of the project, different versions of python might be needed. 
 It is **very recommended** to work with conda environments. 
 
 
@@ -60,11 +60,11 @@ It is **very recommended** to work with conda environments.
 - Install the [usb_camera package](https://github.com/ros-drivers/usb_cam)
 - Find the arduino port (probably this step is not necessary)
 
-7. Don't forget to configure ROS_MASTER and ROS_IP in every computer and in the Raspberry to connect all the nodes in the architecture
+7. Don't forget to configure **ROS_MASTER** and **ROS_IP** in every computer and in the Raspberry to connect all the nodes in the architecture
    -`export ROS_MASTER=10.31.56.80` (IP Of the ROS_MASTER)
    -`export ROS_IP=10.31.56.75` (IP of nodes)
 
-8. Install Conda to work with environments. Due to ROS packages and versions sometimes python2 or python3 will be needed. You can create and replicate the environments from folder **conda_environments** with command `conda env create -f environment.yml`
+8. Install **Conda** to work with environments. Due to ROS packages and versions sometimes python2 or python3 will be needed. You can create and replicate the environments from folder **conda_environments** with command `conda env create -f *name_of_file*.yml`
   
 
 
@@ -86,20 +86,22 @@ If you now return to the roslaunch terminal, the following lines should have app
 
 - `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
-2. Initialize the Robot Controller. Same computer as before (Python2)
+2. Initialize the **Robot Controller**. Same computer as before (Python2)
 - `conda activate python2` (if you are using conda environments)  
 - `rosrun robot_controller main.py` 
 
-3. Raspberry Pi. Initialize the camera, and the information from arduino. 
+3. **Raspberry Pi** Initialize the camera, and the information from arduino. 
 - `roslaunch usb_cam usb_cam-test.launch`
 - `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0/`
 
 4. Initialize the other camera. It can run in any computer
 - `usb_cam usb_cam-test.launch`
 
-5. Run AI Manager (Use it in the DL Server) (Python3)
+5. Run **AI Manager** (Use it in the DL Server) (Python3)
 - `conda activate python3` (if you are using conda environments)  
 - `rosrun ai_manager main.py`
+
+**Note**: when using **usb_cam** you should be able to see the images taken from te cameras. Both from the onboard camera on the robot, and the upper camera with the whole environment. 
 
 
 
