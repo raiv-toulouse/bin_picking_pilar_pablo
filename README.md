@@ -57,7 +57,7 @@ It is **very recommended** to work with conda environments.
 6. Raspberry Installation:
 - Install ROS and a catkin woskpace in Raspberry
 - Install Arduino  and import ROS serial library for the Arduino connected to the Raspberry
-- Install the usb_camera package
+- Install the [usb_camera package](https://github.com/ros-drivers/usb_cam)
 - Find the arduino port (probably this step is not necessary)
 
 7. Don't forget to configure ROS_MASTER in every computer and in the Raspberry to connect all the nodes in the architecture
