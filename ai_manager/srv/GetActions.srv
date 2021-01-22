@@ -1,0 +1,5 @@
+float64 x
+float64 y
+bool object_gripped
+---
+string action
