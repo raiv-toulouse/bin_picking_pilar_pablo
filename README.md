@@ -10,7 +10,7 @@ The objects in the environment are distributed in a box randomly so the system w
 
 ## Architecture
 
-![Architecture](/readme-images/ROS_architecture.png)
+![Architecture](/ai_manager/readme-images/ROS_architecture.png)
 
 ROS will be the tool used to interact and communicate with the robot. 
 
@@ -76,7 +76,7 @@ On the robot, a program with this instruction has been saved under the name of '
 By clicking on the Command tab after having selected the ExternalControl command, make sure that the Host IP is correct (IP of the computer on which the previous roslaunch command was launched).
 If this is not the case, click on the Installation tab then External Control to correct this. 
 
-Finally, you have to press the small Play button at the bottom of the graphical interface. 
+Finally, **you have to press the small Play button at the bottom of the graphical interface**. 
 If you now return to the roslaunch terminal, the following lines should have appeared: 
  *Robot requested program*  
  *Sent program to robot*  
@@ -87,7 +87,7 @@ If you now return to the roslaunch terminal, the following lines should have app
 2. Initialize the Robot Controller. Same computer as before
 - `rosrun robot_controller main.py` 
 
-3. Raspberry Pi. Initialize the camera, and the information from arduino. 
+3. Raspberry Pi. Initialize the camera, and the information from arduino.
 - `roslaunch usb_cam usb_cam-test.launch`
 - `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0/`
 
