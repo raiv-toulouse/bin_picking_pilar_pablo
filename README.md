@@ -10,7 +10,7 @@ The objects in the environment are distributed in a box randomly so the system w
 
 ## Architecture
 
-![Architecture](/ai_manager/readme-images/ROS_architecture.png)
+![Architecture](ai_manager/readme-images/ROS_architecture.png)
 
 ROS will be the tool used to interact and communicate with the robot. 
 
