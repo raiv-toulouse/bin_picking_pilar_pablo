@@ -84,7 +84,7 @@ If you now return to the roslaunch terminal, the following lines should have app
 
 - `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
-2. Initialize the Robot Controller. Same computer as before
+2. Initialize the Robot Controller. Same computer as before but with a python2 environment.
 - `rosrun robot_controller main.py` 
 
 3. Raspberry Pi. Initialize the camera, and the information from arduino.
