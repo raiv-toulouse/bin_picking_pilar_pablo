@@ -89,7 +89,7 @@ If you now return to the roslaunch terminal, the following lines should have app
 
 3. Raspberry Pi. Initialize the camera, and the information from arduino.
 - `roslaunch usb_cam usb_cam-test.launch`
-- `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0/`
+- `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0`
 
 4. Initialize the other camera. It can run in any computer
 - `usb_cam usb_cam-test.launch`
