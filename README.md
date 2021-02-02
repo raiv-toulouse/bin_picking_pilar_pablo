@@ -33,13 +33,17 @@ It is **very recommended** to work with conda environments.
 3. Create your catkin_workspace
 4. Install the following:
    `cd catkin_ws/src`
+   
    `git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver`
 
    `cd ..`
+   
    `git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot`
 
    `sudo apt update -qq`
+   
    `rosdep update`
+   
    `rosdep install --from-paths src --ignore-src -y`
 
    `git clone https://github.com/ros-controls/ros_controllers.git  src/ros_controllers`
@@ -49,7 +53,12 @@ It is **very recommended** to work with conda environments.
    `git clone https://github.com/raiv-toulouse/ur_icam.git src/ur_icam`
 
    `catkin_make`
-   `ls -l`
+   
+   `conda activate python2`
+   
+   To correct a bug (Failed to import pyassimp, see https://github.com/ros-planning/moveit/issues/86 for more info)
+   
+   `~/anaconda3/envs/python2/bin/pip install  pyassimp`
 
 5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
    - `roslaunch ur_calibration calibration_correction.launch robot_ip:=10.31.56.102 target_filename:="${HOME}/Calibration/ur3_calibration.yaml"`
