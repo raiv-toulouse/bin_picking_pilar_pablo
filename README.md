@@ -40,6 +40,10 @@ It is **very recommended** to work with conda environments.
    `cd ..`
    
    `git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot`
+   
+   Edit the fmauch_universal_robot/ur3_moveit_config/config/controllers.yaml file and write this line (to correct this problem : https://github.com/ros-industrial/ur_modern_driver/issues/261#issuecomment-462254653): 
+   
+   `action_ns: scaled_pos_joint_traj_controller/follow_joint_trajectory`
 
    `sudo apt update -qq`
    
