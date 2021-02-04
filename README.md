@@ -1,6 +1,6 @@
 # bin_picking
 Bin Picking research project.
-Bin Picking avec Deep Learning, voir [ici](https://www.youtube.com/watch?v=ydh_AdWZflA)
+Bin Picking with Deep Learning, see [here](https://www.youtube.com/watch?v=ydh_AdWZflA)
 
 ## Project Description
 The objective of the project is to implement a Pick and Place task with a robotic arm using Artificial Intelligence techniques such as Image Recognition and Reinforcement Learning.  
@@ -30,8 +30,9 @@ It is **very recommended** to work with conda environments.
 
 1. Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) to have a better understanding of how ROS works
 2. Follow [Universal Robot Tutorial](https://academy.universal-robots.com/es/formacion-online/formacion-online-de-cb3/)
-3. Create your catkin_workspace
+3. Create your catkin_workspace (http://wiki.ros.org/catkin/Tutorials/create_a_workspace) 
 4. Install the following:
+
    `cd catkin_ws/src`
    
    `git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver`
@@ -63,14 +64,32 @@ It is **very recommended** to work with conda environments.
 5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
    - `roslaunch ur_calibration calibration_correction.launch robot_ip:=10.31.56.102 target_filename:="${HOME}/Calibration/ur3_calibration.yaml"`
 
-6. Raspberry Installation:
-- Install ROS and a catkin woskpace in Raspberry
-- Install Arduino  and import ROS serial library for the Arduino connected to the Raspberry
+6. Arduino:
+- Install Arduino then configure to have access 
+
+` sudo usermod -a -G tty <user>`
+
+`sudo usermod -a -G dialout <user>` 
+
+see http://doc.ubuntu-fr.org/arduino
+
+and import ROS serial library to connect to the Arduino
+
+`sudo apt-get install ros-melodic-rosserial-arduino`
+
+`sudo apt-get install ros-melodic-rosserial`
+
+`cd ~/snap/arduino/current/Arduino/libraries`
+
+`conda activate python2`
+
+`rosrun rosserial_arduino make_libraries.py .`
+
 - Install the [usb_camera package](https://github.com/ros-drivers/usb_cam)
 - Find the arduino port (probably this step is not necessary)
 
 7. Don't forget to configure ROS_MASTER and ROS_IP in every computer and in the Raspberry to connect all the nodes in the architecture
-   -`export ROS_MASTER=10.31.56.80` (IP Of the ROS_MASTER)
+   -`export ROS_MASTER_URI=http://10.31.56.80:11311/` (IP Of the ROS_MASTER)
    -`export ROS_IP=10.31.56.75` (IP of nodes)
 
 
@@ -94,16 +113,23 @@ If you now return to the roslaunch terminal, the following lines should have app
 - `roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch`
 
 2. Initialize the Robot Controller. Same computer as before but with a python2 environment.
+- `conda activate python2`
 - `rosrun robot_controller main.py` 
 
-3. Raspberry Pi. Initialize the camera, and the information from arduino.
-- `roslaunch usb_cam usb_cam-test.launch`
+3. Initialize the information from arduino.
+- `conda activate python2`
 - `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0`
 
-4. Initialize the other camera. It can run in any computer
-- `usb_cam usb_cam-test.launch`
+4. Initialize the 2 cameras
+
+If you plug the 2 cameras on the same computer, plug them on different USB port (e.g 1 camera on the USB2 port, the other on the USB3 port) 
+- `roslaunch usb_cam usb_2_cameras.launch`
+
+You should see the images of the two cameras.
 
 5. Run AI Manager (Use it in the DL Server)
+- `ssh bin_picking@10.31.56.62` (log on DL machine with bin_picking account)
+- `conda activate python3`
 - `rosrun ai_manager main.py`
 
 
