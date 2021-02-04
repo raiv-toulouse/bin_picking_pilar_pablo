@@ -311,7 +311,7 @@ class RLAlgorithm:
             """
             features, pick_prediction = self.image_model.evaluate_image(image, self.feature_extraction_model)
             features = torch.from_numpy(features)
-            return features.to(self.device), pick_prediction[1].to(self.device)
+            return features.to(self.device), torch.tensor([math.exp(pick_prediction.numpy()[0][1])]).to(self.device)
 
         def num_actions_available(self):
             """
@@ -486,7 +486,6 @@ class RLAlgorithm:
             pickle.dump(self, output, pickle.HIGHEST_PROTOCOL)
 
         rospy.loginfo("Saving Statistics...")
-        print(filename)
 
         filename = 'trainings/{}_stats.pkl'.format(filename.split('.pkl')[0])
         self.statistics.save(filename=filename)
@@ -513,7 +512,7 @@ class RLAlgorithm:
         except IOError:
             rospy.loginfo("There is no Training saved. New object has been created")
             return RLAlgorithm(batch_size=batch_size, gamma=gamma, eps_start=eps_start, eps_end=eps_end,
-                               eps_decay=eps_decay, lr=lr, save_training_others=others)
+                               eps_decay=eps_decay, lr=lr, include_pick_prediction=True, save_training_others=others)
 
     def train_net(self):
         """

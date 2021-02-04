@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
     stats.print_general_info()
 
-    offset = 0
+    offset = 100
 
     # Steps per episodes
     stats.plt_series(
