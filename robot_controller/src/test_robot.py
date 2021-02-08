@@ -75,5 +75,5 @@ if __name__ == '__main__':
 
     stop = False
     while not stop:
-        action = raw_input("Which action to perform (north, south, east, west, pick, random_state, end)? ")
+        action = input("Which action to perform (north, south, east, west, pick, random_state, end)? ")
         object_gripped, stop = take_action(action, robot)
