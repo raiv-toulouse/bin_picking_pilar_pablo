@@ -151,7 +151,7 @@ class Robot:
         def back_to_original_pose(robot):
             """
             Function used to go back to the original height once a vertical movement has been performed.
-            :param robot: robot_controller.Robot.py object
+            :param robot: robot_controller.robot.py object
             :return:
             """
             distance = Environment.CARTESIAN_CENTER[2] - robot.robot.get_current_pose().pose.position.z
@@ -168,7 +168,7 @@ class Robot:
             communication_problem boolean flag is set to True. It is considered that there is a problem with
             communications when the robot is not receiving any distance messages during 200 milli-seconds (timeout=0.2)
 
-            :param robot: robot_controller.Robot.py object
+            :param robot: robot_controller.robot.py object
             :return: communication_problem flag
             """
 

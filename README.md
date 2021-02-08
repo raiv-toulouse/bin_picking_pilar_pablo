@@ -30,6 +30,13 @@ It is **very recommended** to work with conda environments.
 
 1. Follow [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) to have a better understanding of how ROS works
 2. Follow [Universal Robot Tutorial](https://academy.universal-robots.com/es/formacion-online/formacion-online-de-cb3/)
+   
+`conda install -c conda-forge empy`
+
+`conda install pyserial`
+
+`conda install -c conda-forge defusedxml`
+
 3. Create your catkin_workspace (http://wiki.ros.org/catkin/Tutorials/create_a_workspace) 
 4. Install the following:
 
@@ -41,7 +48,7 @@ It is **very recommended** to work with conda environments.
    
    `git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot`
    
-   Edit the fmauch_universal_robot/ur3_moveit_config/config/controllers.yaml file and write this line (to correct this problem : https://github.com/ros-industrial/ur_modern_driver/issues/261#issuecomment-462254653): 
+   Edit the `fmauch_universal_robot/ur3_moveit_config/config/controllers.yaml` file and write this line (to correct this problem : https://github.com/ros-industrial/ur_modern_driver/issues/261#issuecomment-462254653): 
    
    `action_ns: scaled_pos_joint_traj_controller/follow_joint_trajectory`
 
@@ -53,9 +60,15 @@ It is **very recommended** to work with conda environments.
 
    `git clone https://github.com/ros-controls/ros_controllers.git  src/ros_controllers`
 
-   `sudo apt-get install ros-melodic-four-wheel-steering-controller`
+   `sudo apt-get install ros-melodic-four-wheel-steering-controller` for Melodic, `sudo apt-get install ros-noetic-four-wheel-steering-controller` for Noetic
 
    `git clone https://github.com/raiv-toulouse/ur_icam.git src/ur_icam`
+
+   `sudo apt-get install ros-noetic-moveit-commander`
+
+   `sudo apt-get install ros-noetic-image-view`
+   
+   `rm -R src/ros_controllers/four_wheel_steering_controller` (to correct an error : -- Could NOT find urdf_geometry_parser (missing: urdf_geometry_parser_DIR))
 
    `catkin_make`
    
@@ -148,7 +161,7 @@ If you now return to the roslaunch terminal, the following lines should have app
 
 2. Initialize the Robot Controller. Same computer as before but with a python2 environment.
 - `conda activate python2`
-- `rosrun robot_controller main.py` 
+- `rosrun robot_controller main_controller.py` 
 
 3. Initialize the information from arduino.
 - `conda activate python2`  (for Melodic) ,  `conda activate python3`  (for Noetic)

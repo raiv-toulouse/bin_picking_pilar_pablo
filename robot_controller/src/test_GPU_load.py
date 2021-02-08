@@ -12,13 +12,13 @@ roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_c
 roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch
 
 - Activate the talker
-rosrun ai_manager main.py
+rosrun ai_manager main_controller.py
 
 - Activate the node
 rosrun robot_controller arduino.py
 
 - Finally, we can run the program
-rosrun robot_controller main.py
+rosrun robot_controller main_controller.py
 
 """
 
