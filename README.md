@@ -79,6 +79,8 @@ see http://doc.ubuntu-fr.org/arduino
 
 and import ROS serial library to connect to the Arduino
 
+For Melodic and Python2:
+
 `sudo apt-get install ros-melodic-rosserial-arduino`
 
 `sudo apt-get install ros-melodic-rosserial`
@@ -88,6 +90,34 @@ and import ROS serial library to connect to the Arduino
 `conda activate python2`
 
 `rosrun rosserial_arduino make_libraries.py .`
+
+For Noetic and Python3:
+
+`sudo apt-get install ros-noetic-rosserial-arduino`
+
+`sudo apt-get install ros-noetic-rosserial`
+
+To correct this error : 
+
+`Arduino/libraries/ros_lib/ros/msg.h:40:10: fatal error: cstring: No such file or directory  #include <cstring>`
+
+`cd ~/snap/arduino/current/Arduino/libraries`
+
+`rm -R ros_lib`
+
+do what described here :
+
+https://answers.ros.org/question/361930/rosserial-arduino-compilation-error-no-cstring/?answer=362407#post-id-362407
+
+Use the  0.7.9 version, not the last one (0.9.4)
+
+Another correction for Noetic (ModuleNotFoundError: No module named 'SerialClient') :
+
+`sudo gedit /opt/ros/noetic/lib/python3/dist-packages/rosserial_arduino/__init__.py`
+
+then add a . (point) before SerialClient
+
+`from .SerialClient import *` 
 
 - Install the [usb_camera package](https://github.com/ros-drivers/usb_cam)
 - Find the arduino port (probably this step is not necessary)
@@ -121,7 +151,7 @@ If you now return to the roslaunch terminal, the following lines should have app
 - `rosrun robot_controller main.py` 
 
 3. Initialize the information from arduino.
-- `conda activate python2`
+- `conda activate python2`  (for Melodic) ,  `conda activate python3`  (for Noetic)
 - `rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0`
 
 4. Initialize the 2 cameras
