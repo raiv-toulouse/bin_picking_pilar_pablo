@@ -179,12 +179,11 @@ You should see the images of the two cameras.
 - `conda activate python3`
 - `rosrun ai_manager main.py`
 
-H~2~
 
 
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTk3ODE4NDQzNSw4MjUxMzExNTEsLTEzMT
+eyJoaXN0b3J5IjpbMTI1MDEzNzc2MSw4MjUxMzExNTEsLTEzMT
 UzODY0MDNdfQ==
 -->
