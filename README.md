@@ -78,7 +78,7 @@ It is **very recommended** to work with conda environments.
    
    `~/anaconda3/envs/python2/bin/pip install  pyassimp`
 
-5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
+5. Robot calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
    - `roslaunch ur_calibration calibration_correction.launch robot_ip:=10.31.56.102 target_filename:="${HOME}/Calibration/ur3_calibration.yaml"`
 
 6. Arduino:
@@ -186,6 +186,7 @@ You should see the images of the two cameras.
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTg4NzQ5NDgsMTE4NjA5MDk1MCwxMjUwMT
-M3NzYxLDgyNTEzMTE1MSwtMTMxNTM4NjQwM119
+eyJoaXN0b3J5IjpbMjEwOTQ3NDk1MywtODg3NDk0OCwxMTg2MD
+kwOTUwLDEyNTAxMzc3NjEsODI1MTMxMTUxLC0xMzE1Mzg2NDAz
+XX0=
 -->
