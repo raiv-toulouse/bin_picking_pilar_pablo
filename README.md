@@ -143,7 +143,8 @@ then add a . (point) before SerialClient
 ## Environment Setup 
 Note: Please enter the each of the following commands in a new terminal
 
-1. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
+1. Swich on the r
+2. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
 
 - `roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_config:=${HOME}/Calibration/ur3_calibration.yaml`
 
@@ -184,6 +185,6 @@ You should see the images of the two cameras.
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTI1MDEzNzc2MSw4MjUxMzExNTEsLTEzMT
-UzODY0MDNdfQ==
+eyJoaXN0b3J5IjpbOTQyNjg5OTMzLDEyNTAxMzc3NjEsODI1MT
+MxMTUxLC0xMzE1Mzg2NDAzXX0=
 -->
