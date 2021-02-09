@@ -152,7 +152,7 @@ By clicking on the Command tab after having selected the ExternalControl command
 If this is not the case, click on the Installation tab then External Control to correct this. 
 
 Finally, **you have to press the small Play button at the bottom of the graphical interface**. 
-If you now return to the roslaunch terminal, the following lines should have appeared: 
+If you now return to the `roslaunch` terminal, the following lines should have appeared: 
  *Robot requested program*  
  *Sent program to robot*  
  *Robot ready to receive control commands*  
@@ -185,5 +185,5 @@ You should see the images of the two cameras.
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzMTUzODY0MDNdfQ==
+eyJoaXN0b3J5IjpbODI1MTMxMTUxLC0xMzE1Mzg2NDAzXX0=
 -->
