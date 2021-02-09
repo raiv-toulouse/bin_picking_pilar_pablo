@@ -84,7 +84,7 @@ It is **very recommended** to work with conda environments.
 6. Arduino:
 - Install Arduino then configure to have access 
 
-` sudo usermod -a -G tty <user>`
+`sudo usermod -a -G tty <user>`
 
 `sudo usermod -a -G dialout <user>` 
 
@@ -186,6 +186,6 @@ You should see the images of the two cameras.
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTE4NjA5MDk1MCwxMjUwMTM3NzYxLDgyNT
-EzMTE1MSwtMTMxNTM4NjQwM119
+eyJoaXN0b3J5IjpbLTg4NzQ5NDgsMTE4NjA5MDk1MCwxMjUwMT
+M3NzYxLDgyNTEzMTE1MSwtMTMxNTM4NjQwM119
 -->
