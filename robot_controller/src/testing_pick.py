@@ -74,10 +74,10 @@ def down_movement(robot, movement_speed):
     :return: communication_problem flag
     """
 
-    distance_ok = rospy.wait_for_message('distance', Bool).data  # We retrieve sensor distance
+    contact_ok = rospy.wait_for_message('contact', Bool).data  # We retrieve sensor contact
     communication_problem = False
 
-    if not distance_ok:  # If the robot is already in contact with an object, no movement is performed
+    if not contact_ok:  # If the robot is already in contact with an object, no movement is performed
         waypoints = []
         wpose = robot.robot.get_current_pose().pose
         wpose.position.z -= (wpose.position.z - 0.26)  # Third move sideways (z)
@@ -91,9 +91,9 @@ def down_movement(robot, movement_speed):
         plan = change_plan_speed(plan, movement_speed)
         robot.robot.move_group.execute(plan, wait=False)
 
-        while not distance_ok:
+        while not contact_ok:
             try:
-                distance_ok = rospy.wait_for_message('distance', Bool, 0.2).data  # We retrieve sensor distance
+                contact_ok = rospy.wait_for_message('contact', Bool, 0.2).data  # We retrieve sensor contact
             except:
                 print("Unexpected error:", sys.exc_info()[0])
                 communication_problem = True

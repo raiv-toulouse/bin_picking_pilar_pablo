@@ -37,6 +37,8 @@ It is **very recommended** to work with conda environments.
 
 `conda install -c conda-forge defusedxml`
 
+`conda install -c conda-forge imutils`
+
 3. Create your catkin_workspace (http://wiki.ros.org/catkin/Tutorials/create_a_workspace) 
 4. Install the following:
 
@@ -67,6 +69,9 @@ It is **very recommended** to work with conda environments.
    `sudo apt-get install ros-noetic-moveit-commander`
 
    `sudo apt-get install ros-noetic-image-view`
+
+   `sudo apt-get install ros-noetic-camera-info-manager`
+
    
    `rm -R src/ros_controllers/four_wheel_steering_controller` (to correct an error : -- Could NOT find urdf_geometry_parser (missing: urdf_geometry_parser_DIR))
 
