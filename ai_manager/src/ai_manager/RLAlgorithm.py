@@ -245,8 +245,8 @@ class RLAlgorithm:
             self.image_tensor = None  # Current image tensor
             self.pick_probability = None  # Current image tensor
 
-            self.model_name = 'model-epoch=05-val_loss=0.36-weights7y3_unfreeze2.ckpt'
-            # self.model_name = 'resnet50_freezed.ckpt'
+            #self.model_name = 'model-epoch=05-val_loss=0.36-weights7y3_unfreeze2.ckpt'
+            self.model_name = 'resnet50_freezed.ckpt'
             self.model_family = 'resnet50'
             self.image_model = ImageModel(model_name=self.model_family)
             self.feature_extraction_model = self.image_model.load_model(self.model_name)
@@ -528,7 +528,7 @@ class RLAlgorithm:
             experiences = self.memory.sample(self.batch_size)  # Retrieve the experiences
             # We split the batch of experience into different tensors
             states, coordinates, pick_probabilities, actions, rewards, next_states, next_coordinates, \
-                next_pick_probabilities, is_final_state = self.extract_tensors(experiences)
+            next_pick_probabilities, is_final_state = self.extract_tensors(experiences)
             # To compute the loss, current_q_values and target_q_values have to be calculated
             current_q_values = self.QValues.get_current(self.policy_net, states, coordinates, actions,
                                                         pick_probabilities)

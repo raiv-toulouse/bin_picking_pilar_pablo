@@ -33,6 +33,7 @@ def get_action(robot, object_gripped):
     rospy.wait_for_service('get_actions')
     try:
         get_actions = rospy.ServiceProxy('get_actions', GetActions)
+        print(get_actions(relative_coordinates[0], relative_coordinates[1], object_gripped).action)
         return get_actions(relative_coordinates[0], relative_coordinates[1], object_gripped).action
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
@@ -55,6 +56,10 @@ def take_action(action, robot):
         object_gripped = robot.take_pick()
     elif action == 'random_state':
         robot.take_random_state()
+    elif action == 'place':
+        robot.take_place()
+    elif action == 'initial':
+        robot.go_to_initial_pose()
     elif action == 'end':
         stop = True
     else:
@@ -63,17 +68,26 @@ def take_action(action, robot):
 
 
 if __name__ == '__main__':
+
+
     rospy.init_node('robotUR')
 
     robot = Robot()
+    i = int(input("nombre de tentatives : "))
+    for x in range(0, i-1):
+        print(x+1)
+        robot.take_random_state()
+        object_gripped = robot.take_pick()
 
+        robot.take_random_state()
     # Test of positioning with angular coordinates
-    robot.go_to_initial_pose()
+    # robot.go_to_initial_pose()
     print('1')
-#    robot.take_place()
+   # robot.take_place()
     print('2')
 
     stop = False
     while not stop:
-        action = input("Which action to perform (north, south, east, west, pick, random_state, end)? ")
+
+        action = input("Which action to perform (north, south, east, west, pick, random_state, end, place, initial)? ")
         object_gripped, stop = take_action(action, robot)

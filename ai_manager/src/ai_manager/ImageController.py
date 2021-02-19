@@ -54,6 +54,6 @@ class ImageController:
 
 if __name__ == '__main__':
     rospy.init_node('image_recorder')  # ROS node initialization
-    image_controller = ImageController(path='/home/pilar/Pilar/ros_pictures', image_topic='/usb_cam2/image_raw')
+    image_controller = ImageController(path='/home/student1/ros_pictures', image_topic='/usb_cam2/image_raw')
     img, width, height = image_controller.get_image()
     image_controller.record_image(img, True)

@@ -99,14 +99,14 @@ class Robot:
         :param n_msg: number of messages
         :return:
         """
-        time_step = (timer/2)/n_msg
-        i=0
-        while(i <= n_msg):
+        time_step = (timer / 2) / n_msg
+        i = 0
+        while (i <= n_msg):
             self.gripper_publisher.publish(msg)
             time.sleep(time_step)
             i += 1
 
-        time.sleep(timer/2)
+        time.sleep(timer / 2)
 
     # Action pick: Pick and place
     def take_pick(self):
@@ -172,7 +172,8 @@ class Robot:
             :return: communication_problem flag
             """
 
-            distance_ok = rospy.wait_for_message('distance', Bool).data  # We retrieve sensor distance
+            distance_ok = rospy.wait_for_message('contact', Bool).data  # We retrieve sensor contact
+
             communication_problem = False
 
             if not distance_ok:  # If the robot is already in contact with an object, no movement is performed
@@ -190,8 +191,10 @@ class Robot:
                 robot.robot.move_group.execute(plan, wait=False)
 
                 while not distance_ok:
+
                     try:
-                        distance_ok = rospy.wait_for_message('distance', Bool, 0.2).data  # We retrieve sensor distance
+                        distance_ok = rospy.wait_for_message('contact', Bool, 0.1).data  # We retrieve scontact distance
+
                     except:
                         communication_problem = True
                         rospy.logwarn("Error in communications, trying again")
@@ -205,6 +208,7 @@ class Robot:
 
         communication_problem = True
         while communication_problem:  # Infinite loop until the movement is completed
+
             communication_problem = down_movement(self, movement_speed=0.2)
 
         self.send_gripper_message(True, timer=4)  # We turn on the gripper
@@ -214,9 +218,12 @@ class Robot:
         object_gripped = rospy.wait_for_message('object_gripped', Bool).data
         if object_gripped:  # If we have gripped an object we place it into the desired point
             self.take_place()
+            print("pris")
+            print(object_gripped)
         else:
             self.send_gripper_message(False)  # We turn off the gripper
-
+            print("non pris")
+            print(object_gripped)
         return object_gripped
 
     # Function to define the place for placing the grasped objects
