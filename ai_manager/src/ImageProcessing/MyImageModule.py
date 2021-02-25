@@ -40,12 +40,8 @@ class MyImageModule(pl.LightningDataModule):
         print("Class fail:", class_count[0])
         print("Class success:", class_count[1])
         count = np.array([class_count[0], class_count[1]])
-        print(count)
         weight = 1. / torch.Tensor(count)
-        print("Weights:", weight)
         weight_samples = np.array([weight[t] for t in dataset.targets])
-        print(weight_samples)
-
         return weight_samples
 
     def setup(self, stage=None):
@@ -113,15 +109,15 @@ class MyImageModule(pl.LightningDataModule):
         print('Targets Test:', TransformSubset(self.test_data).count_targets())
 
     def train_dataloader(self):
-        train_loader = torch.utils.data.DataLoader(self.train_data, batch_size=self.batch_size)
+        train_loader = torch.utils.data.DataLoader(self.train_data, num_workers=16, batch_size=self.batch_size)
         return train_loader
 
     def val_dataloader(self):
-        val_loader = torch.utils.data.DataLoader(self.val_data, batch_size=self.batch_size)
+        val_loader = torch.utils.data.DataLoader(self.val_data, num_workers=16, batch_size=self.batch_size)
         return val_loader
 
     def test_dataloader(self):
-        test_loader = torch.utils.data.DataLoader(self.test_data, batch_size=self.batch_size)
+        test_loader = torch.utils.data.DataLoader(self.test_data, num_workers=16, batch_size=self.batch_size)
         return test_loader
 
     # TODO: Método para acceder a las clases

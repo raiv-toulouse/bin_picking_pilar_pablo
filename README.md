@@ -37,6 +37,8 @@ It is **very recommended** to work with conda environments.
 
 `conda install -c conda-forge defusedxml`
 
+`conda install -c conda-forge imutils`
+
 3. Create your catkin_workspace (http://wiki.ros.org/catkin/Tutorials/create_a_workspace) 
 4. Install the following:
 
@@ -67,6 +69,9 @@ It is **very recommended** to work with conda environments.
    `sudo apt-get install ros-noetic-moveit-commander`
 
    `sudo apt-get install ros-noetic-image-view`
+
+   `sudo apt-get install ros-noetic-camera-info-manager`
+
    
    `rm -R src/ros_controllers/four_wheel_steering_controller` (to correct an error : -- Could NOT find urdf_geometry_parser (missing: urdf_geometry_parser_DIR))
 
@@ -78,13 +83,13 @@ It is **very recommended** to work with conda environments.
    
    `~/anaconda3/envs/python2/bin/pip install  pyassimp`
 
-5. Camera calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
+5. Robot calibration. The first time you use this driver, you must extract the calibration from the robot to a file. (IP of the robot)
    - `roslaunch ur_calibration calibration_correction.launch robot_ip:=10.31.56.102 target_filename:="${HOME}/Calibration/ur3_calibration.yaml"`
 
 6. Arduino:
 - Install Arduino then configure to have access 
 
-` sudo usermod -a -G tty <user>`
+`sudo usermod -a -G tty <user>`
 
 `sudo usermod -a -G dialout <user>` 
 
@@ -143,7 +148,9 @@ then add a . (point) before SerialClient
 ## Environment Setup 
 Note: Please enter the each of the following commands in a new terminal
 
-1. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
+1. Switch on the robot
+
+3. Initialize ROS, Moveit and Universal Robot. Must be run in the same computer
 
 - `roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=10.31.56.102 kinematics_config:=${HOME}/Calibration/ur3_calibration.yaml`
 
@@ -152,7 +159,7 @@ By clicking on the Command tab after having selected the ExternalControl command
 If this is not the case, click on the Installation tab then External Control to correct this. 
 
 Finally, **you have to press the small Play button at the bottom of the graphical interface**. 
-If you now return to the roslaunch terminal, the following lines should have appeared: 
+If you now return to the `roslaunch` terminal, the following lines should have appeared: 
  *Robot requested program*  
  *Sent program to robot*  
  *Robot ready to receive control commands*  
@@ -183,4 +190,8 @@ You should see the images of the two cameras.
 
 
 
-
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbMjEwOTQ3NDk1MywtODg3NDk0OCwxMTg2MD
+kwOTUwLDEyNTAxMzc3NjEsODI1MTMxMTUxLC0xMzE1Mzg2NDAz
+XX0=
+-->

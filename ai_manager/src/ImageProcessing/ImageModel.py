@@ -16,8 +16,8 @@ from torchvision import transforms, datasets
 from pytorch_lightning.loggers import TensorBoardLogger
 # from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
-from .CNN import CNN
-from .MyImageModule import MyImageModule
+from CNN import CNN
+from MyImageModule import MyImageModule
 
 torch.set_printoptions(linewidth=120)
 
@@ -113,9 +113,9 @@ class ImageModel:
         y_true = []
         y_pred = []
         for imgs, labels in loader:
-            logits = model(imgs)
+            features, prediction = model(imgs)
             y_true.extend(labels)
-            y_pred.extend(logits.detach().numpy())
+            y_pred.extend(prediction.detach().numpy())
         return np.array(y_true), np.array(y_pred)
 
     def get_activation(self, name):
@@ -166,10 +166,10 @@ class ImageModel:
 
     # Evaluate the model with the test data_loader
     def evaluate_model(self):
-        inference_model = self.inference_model()
+        _, inference_model = self.inference_model()
         # print("Inference model:", inference_model)
         # print("Test Dataloader:", self.image_module.test_dataloader())
-        y_true, y_pred = image_model.evaluate(inference_model, self.image_module.test_dataloader())
+        y_true, y_pred = self.evaluate(inference_model, self.image_module.test_dataloader())
         return y_true, y_pred
 
     def load_best_model(self):
