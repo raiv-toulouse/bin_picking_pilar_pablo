@@ -109,10 +109,10 @@ class Robot:
         time.sleep(timer/2)
 
     # Action pick: Pick and place
-    def take_pick(self):
-        # In this function we should read the distance to the object
-        # up_distance = 0  # Variable were we store the distance that we have move the robot so that we can go back to the
-        # original pose
+    def take_pick(self, no_rotation = False):
+        # The robot goes down until the gripper touch something (table or object)
+        # Detection provided by /contact topic
+        # If no_rotation = True, it means that the gripper must release the object and mustn't turn. To be used in recording images for NN training
 
         def change_plan_speed(plan, new_speed):
             """
@@ -212,7 +212,7 @@ class Robot:
         back_to_original_pose(self)  # Back to the original pose
 
         object_gripped = rospy.wait_for_message('object_gripped', Bool).data
-        if object_gripped:  # If we have gripped an object we place it into the desired point
+        if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
         else:
             self.send_gripper_message(False)  # We turn off the gripper
