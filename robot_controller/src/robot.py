@@ -205,15 +205,18 @@ class Robot:
 
         communication_problem = True
         while communication_problem:  # Infinite loop until the movement is completed
-            communication_problem = down_movement(self, movement_speed=0.2)
+            communication_problem = down_movement(self, movement_speed=0.15)
 
-        self.send_gripper_message(True, timer=4)  # We turn on the gripper
+        self.send_gripper_message(True, timer=1)  # We turn on the gripper
 
         back_to_original_pose(self)  # Back to the original pose
 
         object_gripped = rospy.wait_for_message('object_gripped', Bool).data
         if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
+        elif object_gripped and no_rotation == True:
+            self.take_random_state()
+            self.send_gripper_message(False)  # We turn off the gripper
         else:
             self.send_gripper_message(False)  # We turn off the gripper
 

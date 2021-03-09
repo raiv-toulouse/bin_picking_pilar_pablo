@@ -24,8 +24,33 @@ if __name__ == '__main__':
     # Evaluate the model ################################################
     image_model.setup_data()
     y_true, y_pred = image_model.evaluate_model()
-    print(y_true)
-    print(np.exp(y_pred))
+    result_list = []
+
+    for i in range(len(np.array(y_true))):
+        if np.array(y_true)[i] == 1:
+            lab = "Success"
+        elif np.array(y_true)[i] == 0:
+            lab = "Fail"
+        print("label : ", lab)
+
+        a = np.exp(y_pred)[i]
+        print("prediction: Fail : ", a[0] * 100, "%", "| Success : ", a[1] * 100, "%")
+        if lab == "Fail" and a[0] > a[1] or lab == "Success" and a[1] > a[0]:
+            print("GOOD")
+            result_list.append(1)
+        else:
+            print("BAD")
+            result_list.append(0)
+        print("\n")
+    compt = 0
+    for i in result_list:
+
+        if i == 1:
+            compt = compt + i
+
+    error = (1 - (compt / len(result_list))) * 100
+    print("Precision : ", 100 - error, "%")
+    print("Global error : ", error, "%")
 
     # Load model  ################################################
     name_model = 'model-epoch=03-val_loss=0.40-v6.ckpt'

@@ -11,14 +11,14 @@ from math import floor
 
 
 class Environment:
-    X_LENGTH = 0.175  # Total length of the x axis environment in meters
-    Y_LENGTH = 0.225  # Total length of the y axis environment in meters
+    X_LENGTH = 0.24  # Total length of the x axis environment in meters
+    Y_LENGTH = 0.34  # Total length of the y axis environment in meters
 
     CAMERA_SECURITY_MARGIN = 0.035  # As the camera is really close to the gripping point, it needs  a security marging
     X_LIMIT = X_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis X
     Y_LIMIT = Y_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis Y
 
-    CARTESIAN_CENTER = [-0.31899288568, -0.00357907370787, 0.376611799631]  # Cartesian center of the RL environment
+    CARTESIAN_CENTER = [-0.31899288568, -0.00357907370787, 0.32]  # Cartesian center of the RL environment
     ANGULAR_CENTER = [2.7776150703430176, -1.5684941450702112, 1.299912452697754, -1.3755658308612269,
                       -1.5422008673297327, -0.3250663916217249]  # Angular center of the RL environment
     PLACE_CARTESIAN_CENTER = [0, 0.25, CARTESIAN_CENTER[2]]  # Cartesian center of the place box

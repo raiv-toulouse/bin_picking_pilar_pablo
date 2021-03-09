@@ -81,7 +81,7 @@ if __name__ == '__main__':
 
         robot.take_random_state()
     # Test of positioning with angular coordinates
-    # robot.go_to_initial_pose()
+    robot.go_to_initial_pose()
     print('1')
    # robot.take_place()
     print('2')
