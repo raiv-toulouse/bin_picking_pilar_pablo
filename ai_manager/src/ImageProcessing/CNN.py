@@ -119,18 +119,22 @@ class CNN(pl.LightningModule):
 
     # defines the network
     def __init__(self,
+                 learning_rate: float = 1e-3,
+                 batch_size: int = 8,
                  input_shape: list = [3, 256, 256],
                  backbone: str = 'resnet18',
                  train_bn: bool = True,
                  milestones: tuple = (5, 10),
-                 batch_size: int = 8,
-                 learning_rate: float = 1e-3,
                  lr_scheduler_gamma: float = 1e-1,
                  num_workers: int = 6):
+        print("dim input shape: ", input_shape)
         super(CNN, self).__init__()
         # parameters
         self.save_hyperparameters()
         self.dim = input_shape
+
+        print("dim input shape: ", input_shape)
+        print("dim init : ", self.dim)
         # 'vgg16', 'resnet50', 'alexnet', 'resnet18', 'resnet34', 'squeezenet1_1', 'googlenet'
         self.backbone = backbone
         self.train_bn = train_bn
@@ -176,6 +180,7 @@ class CNN(pl.LightningModule):
 
         # classes are two: success or failure
         num_target_classes = 2
+        print("self.dim : ", self.dim)
         n_sizes = self._get_conv_output(self.dim)
 
         # 3. Classifier
@@ -208,6 +213,8 @@ class CNN(pl.LightningModule):
     # returns the size of the output tensor going into the Linear layer from the conv block.
     def _get_conv_output(self, shape):
         batch_size = 1
+
+        print("shape : ", shape, " shape[1] : ", *shape)
         input = torch.autograd.Variable(torch.rand(batch_size, *shape))
 
         output_feat = self._forward_features(input)

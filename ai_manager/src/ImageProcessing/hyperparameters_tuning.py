@@ -19,7 +19,8 @@ import pytorch_lightning as pl
 
 
 def train_model_tune(config, data_dir=None, num_epochs=10, num_gpus=1):
-    model = CNN(config)
+
+    model = CNN(config.get("lr"), config.get("batch_size"))
     image_module = MyImageModule(dataset_size=100, batch_size=32)
     image_module.setup()
     logger = TensorBoardLogger('tb_logs', name='Model_prueba_tuning')
