@@ -10,18 +10,18 @@ from ai_manager.ImageController import ImageController
 from math import floor
 
 
-class Environment:
-    X_LENGTH = 0.24  # Total length of the x axis environment in meters
-    Y_LENGTH = 0.34  # Total length of the y axis environment in meters
+class Environment2:
+    X_LENGTH = 0.34  # Total length of the x axis environment in meters
+    Y_LENGTH = 0.24  # Total length of the y axis environment in meters
 
     CAMERA_SECURITY_MARGIN = 0.03  # As the camera is really close to the gripping point, it needs  a security marging
     X_LIMIT = X_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis X
     Y_LIMIT = Y_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis Y
 
-    CARTESIAN_CENTER = [-0.31899288568, -0.00357907370787, 0.34]  # Cartesian center of the RL environment
-    ANGULAR_CENTER = [2.7776150703430176, -1.5684941450702112, 1.299912452697754, -1.3755658308612269,
-                    -1.5422008673297327, -0.3250663916217249]  # Angular center of the RL environment
-    PLACE_CARTESIAN_CENTER = [0, 0.25, CARTESIAN_CENTER[2]]  # Cartesian center of the place box
+    CARTESIAN_CENTER = [0.03562, 0.28812, 0.34]  # Cartesian center of the RL environment
+    ANGULAR_CENTER = [1.2217305, -1.6580628, 1.6231562, -1.5184364,
+                      -1.5009832, 0.1396263]  # Angular center of the RL environment
+    PLACE_CARTESIAN_CENTER = [0.03562, -0.28812, CARTESIAN_CENTER[2]]  # Cartesian center of the place box
     ANGULAR_PICTURE_PLACE = [1.615200161933899, -1.235102955495016, 0.739865779876709, -1.2438910643206995, -1.5095704237567347, -0.06187755266298467]
 
     PICK_DISTANCE = 0.01  # Distance to the object when the robot is performing the pick and place action
@@ -52,10 +52,10 @@ class Environment:
             coordinates_in_center = True
             while coordinates_in_center:
                 coordinate_x, coordinate_y = generate_random_coordinates()
-                if abs(coordinate_x) > (Environment.X_LIMIT / 4) or abs(coordinate_y) > (Environment.Y_LIMIT / 4):
+                if abs(coordinate_x) > (Environment2.X_LIMIT / 4) or abs(coordinate_y) > (Environment2.Y_LIMIT / 4):
                     coordinates_in_center = False
         elif strategy == 'optimal' and image is not None:  # Before going to a random state, we check that there are pieces in this place
-            blob_detector = BlobDetector(x_length=Environment.X_LENGTH, y_length=Environment.Y_LENGTH, columns=4, rows=4)
+            blob_detector = BlobDetector(x_length=Environment2.X_LENGTH, y_length=Environment2.Y_LENGTH, columns=4, rows=4)
             optimal_quadrant = blob_detector.find_optimal_quadrant(image)
             optimal_point = blob_detector.quadrants_center[optimal_quadrant]
 
@@ -76,13 +76,13 @@ class Environment:
         :return coordinate_x, coordinate_y:
         """
         if corner == 'sw' or corner == 'ws':
-            return -Environment.X_LIMIT / 2, Environment.Y_LIMIT / 2
+            return -Environment2.X_LIMIT / 2, Environment2.Y_LIMIT / 2
         if corner == 'nw' or corner == 'wn':
-            return Environment.X_LIMIT / 2, Environment.Y_LIMIT / 2
+            return Environment2.X_LIMIT / 2, Environment2.Y_LIMIT / 2
         if corner == 'ne' or corner == 'en':
-            return Environment.X_LIMIT / 2, -Environment.Y_LIMIT / 2
+            return Environment2.X_LIMIT / 2, -Environment2.Y_LIMIT / 2
         if corner == 'se' or corner == 'es':
-            return -Environment.X_LIMIT / 2, -Environment.Y_LIMIT / 2
+            return -Environment2.X_LIMIT / 2, -Environment2.Y_LIMIT / 2
 
     @staticmethod
     def is_terminal_state(coordinates, object_gripped):
@@ -90,7 +90,7 @@ class Environment:
         Function used to determine if the current state of the robot is terminal or not
         :return: bool
         """
-        def get_limits(length): return length / 2 - Environment.ENV_BOUNDS_TOLERANCE  # functon to calculate the box boundaries
-        x_limit_reached = abs(coordinates[0]) > get_limits(Environment.X_LIMIT)  # x boundary reached
-        y_limit_reached = abs(coordinates[1]) > get_limits(Environment.Y_LIMIT)  # y boundary reached
+        def get_limits(length): return length / 2 - Environment2.ENV_BOUNDS_TOLERANCE  # functon to calculate the box boundaries
+        x_limit_reached = abs(coordinates[0]) > get_limits(Environment2.X_LIMIT)  # x boundary reached
+        y_limit_reached = abs(coordinates[1]) > get_limits(Environment2.Y_LIMIT)  # y boundary reached
         return x_limit_reached or y_limit_reached or object_gripped # If one or both or the boundaries are reached --> terminal state

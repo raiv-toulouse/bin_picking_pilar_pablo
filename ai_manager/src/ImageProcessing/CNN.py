@@ -127,14 +127,13 @@ class CNN(pl.LightningModule):
                  milestones: tuple = (5, 10),
                  lr_scheduler_gamma: float = 1e-1,
                  num_workers: int = 6):
-        print("dim input shape: ", input_shape)
+
         super(CNN, self).__init__()
         # parameters
         self.save_hyperparameters()
         self.dim = input_shape
 
-        print("dim input shape: ", input_shape)
-        print("dim init : ", self.dim)
+
         # 'vgg16', 'resnet50', 'alexnet', 'resnet18', 'resnet34', 'squeezenet1_1', 'googlenet'
         self.backbone = backbone
         self.train_bn = train_bn
@@ -214,7 +213,6 @@ class CNN(pl.LightningModule):
     def _get_conv_output(self, shape):
         batch_size = 1
 
-        print("shape : ", shape, " shape[1] : ", *shape)
         input = torch.autograd.Variable(torch.rand(batch_size, *shape))
 
         output_feat = self._forward_features(input)

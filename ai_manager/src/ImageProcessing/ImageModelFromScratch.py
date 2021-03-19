@@ -6,7 +6,7 @@ from PIL import Image
 from ImageModel import ImageModel
 import numpy as np
 
-def config()
+def config():
     # Config  ################################################
     model = ImageModel(model_name='resnet50', dataset_size=2692)
     return model

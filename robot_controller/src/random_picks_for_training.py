@@ -23,19 +23,54 @@ rosrun robot_controller random_picks_for_training.py
 
 import rospy
 from robot import Robot
-
+from robot2 import Robot2
 
 if __name__ == '__main__':
+    number_box = 1
+    change_box = False
+    compt_object = 0
     from ai_manager.ImageController import ImageController
+
     rospy.init_node('random_picks_for_training')
     image_controller = ImageController(path='/home/student1/ros_pictures', image_topic='/usb_cam/image_raw')
     robot = Robot()
+    robot2 = Robot2()
     robot.go_to_initial_pose()
     ind_image = 0
     while True:
-        robot.take_random_state()
-        img, width, height = image_controller.get_image()
-        object_gripped = robot.take_pick(no_rotation=True)
+        print("1")
+        if number_box == 1:
+            robot.take_random_state()
+            img, width, height = image_controller.get_image()
+            object_gripped = robot.take_pick(no_rotation=True)
+            if object_gripped == True:
+                compt_object += 1
+
+
+        elif number_box == 2:
+            robot2.take_random_state()
+            img, width, height = image_controller.get_image()
+
+            object_gripped = robot2.take_pick(no_rotation=True)
+            if object_gripped == True:
+                compt_object += 1
+        print("2")
+
+        if compt_object == 1:
+            change_box = True
+        else:
+            change_box = False
+
+        if change_box == True:
+            if number_box == 1:
+                number_box = 2
+                compt_object = 0
+            else:
+                number_box = 1
+                compt_object = 0
+        print("3")
+        print("actuellement box ", number_box, " objets attrapés: ", compt_object)
+
         image_controller.record_image(img, object_gripped)
-        rospy.loginfo("Image #{}, object gripped: {}".format(ind_image,object_gripped==True))
+        rospy.loginfo("Image #{}, object gripped: {}".format(ind_image, object_gripped == True))
         ind_image += 1

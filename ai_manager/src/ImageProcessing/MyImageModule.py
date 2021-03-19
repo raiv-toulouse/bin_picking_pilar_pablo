@@ -32,7 +32,11 @@ class MyImageModule(pl.LightningDataModule):
         super().__init__()
         self.trains_dims = None
         self.batch_size = batch_size
-        self.data_dir = './images/'
+        # self.data_dir = './images/'
+
+        # test with CIFAR Pictures
+        self.data_dir = './cifar/'
+
         self.dataset_size = dataset_size
 
     def _calculate_weights(self, dataset):
@@ -60,7 +64,7 @@ class MyImageModule(pl.LightningDataModule):
             transforms.RandomRotation(degrees=15),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
         # Build Dataset
@@ -100,7 +104,8 @@ class MyImageModule(pl.LightningDataModule):
         # val_data.dataset.transform = self.transform
         # test_data.dataset.transform = self.transform
 
-        self.train_data = TransformSubset(train_data, transform=self.augmentation)
+        # self.train_data = TransformSubset(train_data, transform=self.augmentation)
+        self.train_data = TransformSubset(train_data, transform=self.transform)
         self.val_data = TransformSubset(val_data, transform=self.transform)
         self.test_data = TransformSubset(test_data, transform=self.transform)
 
