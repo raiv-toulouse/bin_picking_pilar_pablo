@@ -91,6 +91,15 @@ class Robot2:
         # Move the robot to the random state
         self.relative_move(x_movement, y_movement, 0)
 
+    def take_random_state_fall(self):
+        # Move robot to random positions using relative moves. Get coordinates
+        relative_coordinates = Environment2.generate_random_state_fall(self.environment_image,
+                                                                      self.random_state_strategy)
+        # Calculate the new coordinates
+        x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
+        # Move the robot to the random state
+        self.relative_move(x_movement, y_movement, 0)
+
     def send_gripper_message(self, msg, timer=2, n_msg=10):
         """
         Function that sends a burst of n messages of the gripper_topic during an indicated time
@@ -215,9 +224,17 @@ class Robot2:
         if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
         elif object_gripped and no_rotation == True:
-            self.take_random_state()
-            self.send_gripper_message(False)  # We turn off the gripper
+            print("objet attrapé")
+            #  robot.go_to_initial_pose()
+            # robot.take_random_state_fall()
+
+            #self.send_gripper_message(False)  # We turn off the gripper
+
         else:
+            print("objet attrapé")
+            # robot.go_to_initial_pose()
+            # robot.take_random_state_fall()
+
             self.send_gripper_message(False)  # We turn off the gripper
 
         return object_gripped
@@ -259,3 +276,10 @@ class Robot2:
         else:
             print("Target not reached")
 
+    def go_up_before_changing_box(self):
+        up_point = [-self.robot.get_current_pose().pose.position.x, -self.robot.get_current_pose().pose.position.y, 0.45]
+        target_up = self.robot.go_to_joint_state(up_point)
+        if target_up:
+            print("Target reachead")
+        else:
+            print("Target not reached")

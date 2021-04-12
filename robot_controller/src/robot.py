@@ -4,7 +4,9 @@ import time
 
 from std_msgs.msg import Bool
 from std_msgs.msg import Float32
+
 from ai_manager.Environment import Environment
+
 from ai_manager.ImageController import ImageController
 from ur_icam_description.robotUR import RobotUR
 
@@ -12,7 +14,6 @@ from ur_icam_description.robotUR import RobotUR
 Class used to establish connection with the robot and perform different actions such as move in all cardinal directions 
 or pick and place an object. 
 """
-
 
 class Robot:
     def __init__(self, robot=RobotUR(), gripper_topic='switch_on_off', random_state_strategy='optimal'):
@@ -86,6 +87,14 @@ class Robot:
     def take_random_state(self):
         # Move robot to random positions using relative moves. Get coordinates
         relative_coordinates = Environment.generate_random_state(self.environment_image, self.random_state_strategy)
+        # Calculate the new coordinates
+        x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
+        # Move the robot to the random state
+        self.relative_move(x_movement, y_movement, 0)
+
+    def take_random_state_fall(self):
+        # Move robot to random positions using relative moves. Get coordinates
+        relative_coordinates = Environment.generate_random_state_fall(self.environment_image, self.random_state_strategy)
         # Calculate the new coordinates
         x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
         # Move the robot to the random state
@@ -212,15 +221,24 @@ class Robot:
         back_to_original_pose(self)  # Back to the original pose
 
         object_gripped = rospy.wait_for_message('object_gripped', Bool).data
-        print("object_gripped: ", object_gripped)
+
         if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
 
         elif object_gripped and no_rotation == True:
-            self.take_random_state()
-            self.send_gripper_message(False)  # We turn off the gripper
+            print("objet attrapé")
+            #robot2.go_to_initial_pose()
+            #robot2.take_random_state_fall()
+
+            #self.send_gripper_message(False)  # We turn off the gripper
+
         else:
+            print("objet attrapé")
+            #robot2.go_to_initial_pose()
+            #robot2.take_random_state_fall()
+
             self.send_gripper_message(False)  # We turn off the gripper
+
 
         return object_gripped
 
@@ -261,3 +279,10 @@ class Robot:
         else:
             print("Target not reached")
 
+    def go_up_before_changing_box(self):
+        up_point = [-self.robot.get_current_pose().pose.position.x, -self.robot.get_current_pose().pose.position.y, 0.45]
+        target_up = self.robot.go_to_joint_state(up_point)
+        if target_up:
+            print("Target reachead")
+        else:
+            print("Target not reached")

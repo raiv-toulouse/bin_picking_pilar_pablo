@@ -15,7 +15,7 @@ This class is used to manage sensor_msgs Images.
 class ImageController:
     def __init__(self, path=os.path.dirname(os.path.realpath(__file__)), image_topic='/usb_cam/image_raw'):
         self.ind_saved_images = 0  # Index which will tell us the number of images that have been saved
-        self.success_path = "{}/success".format(path)  # Path where the images are going to be saved
+        self.success_path = "{}/success".format(path)  # Path where the images are going to be savedF
         self.fail_path = "{}/fail".format(path)  # Path where the images are going to be saved
         self.image_topic = image_topic
 
