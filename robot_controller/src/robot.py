@@ -6,6 +6,8 @@ from std_msgs.msg import Bool
 from std_msgs.msg import Float32
 
 from ai_manager.Environment import Environment
+from ai_manager.Environment import Env1
+from ai_manager.Environment import Env2
 
 from ai_manager.ImageController import ImageController
 from ur_icam_description.robotUR import RobotUR
@@ -16,13 +18,21 @@ or pick and place an object.
 """
 
 class Robot:
-    def __init__(self, robot=RobotUR(), gripper_topic='switch_on_off', random_state_strategy='optimal'):
+    def __init__(self, env, robot=RobotUR(), gripper_topic='switch_on_off', random_state_strategy='optimal'):
         self.robot = robot  # Robot we want to control
         self.gripper_topic = gripper_topic  # Gripper topic
         self.gripper_publisher = rospy.Publisher(self.gripper_topic, Bool, queue_size=10)  # Publisher for the gripper topic
         self.image_controller = ImageController(image_topic='/usb_cam2/image_raw')
         self.environment_image = None
         self.random_state_strategy = random_state_strategy
+        self.env = env
+
+
+
+
+
+    def change_environment(self, new_env):
+        self.env = new_env
 
 
     def relative_move(self, x, y, z):
@@ -49,8 +59,8 @@ class Robot:
         self.robot.exec_cartesian_path(waypoints)
 
     def calculate_relative_movement(self, relative_coordinates):
-        absolute_coordinates_x = Environment.CARTESIAN_CENTER[0] - relative_coordinates[0]
-        absolute_coordinates_y = Environment.CARTESIAN_CENTER[1] - relative_coordinates[1]
+        absolute_coordinates_x = self.env.CARTESIAN_CENTER[0] - relative_coordinates[0]
+        absolute_coordinates_y = self.env.CARTESIAN_CENTER[1] - relative_coordinates[1]
 
         current_pose = self.robot.get_current_pose()
 
@@ -63,38 +73,39 @@ class Robot:
         absolut_coordinate_x = self.robot.get_current_pose().pose.position.x
         absolut_coordinate_y = self.robot.get_current_pose().pose.position.y
 
-        relative_coordinate_x = Environment.CARTESIAN_CENTER[0] - absolut_coordinate_x
-        relative_coordinate_y = Environment.CARTESIAN_CENTER[1] - absolut_coordinate_y
+        relative_coordinate_x = self.env.CARTESIAN_CENTER[0] - absolut_coordinate_x
+        relative_coordinate_y = self.env.CARTESIAN_CENTER[1] - absolut_coordinate_y
 
         return [relative_coordinate_x, relative_coordinate_y]
-
+    """
     # Action north: positive x
-    def take_north(self, distance=Environment.ACTION_DISTANCE):
+    def take_north(self, distance= self.environment.ACTION_DISTANCE):
         self.relative_move(distance, 0, 0)
 
     # Action south: negative x
-    def take_south(self, distance=Environment.ACTION_DISTANCE):
+    def take_south(self, distance= self.environment.ACTION_DISTANCE):
         self.relative_move(-distance, 0, 0)
 
     # Action east: negative y
-    def take_east(self, distance=Environment.ACTION_DISTANCE):
+    def take_east(self, distance= self.environment.ACTION_DISTANCE):
         self.relative_move(0, -distance, 0)
 
     # Action west: positive y
-    def take_west(self, distance=Environment.ACTION_DISTANCE):
+    def take_west(self, distance= self.environment.ACTION_DISTANCE):
         self.relative_move(0, distance, 0)
-
+    """
     def take_random_state(self):
         # Move robot to random positions using relative moves. Get coordinates
-        relative_coordinates = Environment.generate_random_state(self.environment_image, self.random_state_strategy)
+        relative_coordinates = Environment(self.env).generate_random_state(self.environment_image, self.random_state_strategy)
         # Calculate the new coordinates
         x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
+
         # Move the robot to the random state
         self.relative_move(x_movement, y_movement, 0)
 
     def take_random_state_fall(self):
         # Move robot to random positions using relative moves. Get coordinates
-        relative_coordinates = Environment.generate_random_state_fall(self.environment_image, self.random_state_strategy)
+        relative_coordinates = Environment(self.env).generate_random_state_fall(self.environment_image, self.random_state_strategy)
         # Calculate the new coordinates
         x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
         # Move the robot to the random state
@@ -163,7 +174,7 @@ class Robot:
             :param robot: robot_controller.robot.py object
             :return:
             """
-            distance = Environment.CARTESIAN_CENTER[2] - robot.robot.get_current_pose().pose.position.z
+            distance = self.env.CARTESIAN_CENTER[2] - robot.robot.get_current_pose().pose.position.z
             robot.relative_move(0, 0, distance)
 
         def down_movement(robot, movement_speed):
@@ -245,14 +256,14 @@ class Robot:
     # Function to define the place for placing the grasped objects
     def take_place(self):
         # First, we get the cartesian coordinates of one of the corner
-        x_box, y_box = Environment.get_relative_corner('se')
+        x_box, y_box = Environment(self.env).get_relative_corner('se')
         x_move, y_move = self.calculate_relative_movement([x_box, y_box])
         # We move the robot to the corner of the box
         self.relative_move(x_move, y_move, 0)
         # We calculate the trajectory for our robot to reach the box
-        trajectory_x = self.robot.get_current_pose().pose.position.x - Environment.PLACE_CARTESIAN_CENTER[0]
-        trajectory_y = self.robot.get_current_pose().pose.position.y - Environment.PLACE_CARTESIAN_CENTER[1]
-        trajectory_z = - Environment.CARTESIAN_CENTER[2] + Environment.PLACE_CARTESIAN_CENTER[2]
+        trajectory_x = self.robot.get_current_pose().pose.position.x - self.env.PLACE_CARTESIAN_CENTER[0]
+        trajectory_y = self.robot.get_current_pose().pose.position.y - self.env.PLACE_CARTESIAN_CENTER[1]
+        trajectory_z = - self.env.CARTESIAN_CENTER[2] + self.env.PLACE_CARTESIAN_CENTER[2]
         # We move the robot to the coordinates desired to place the object
         self.relative_move(0, 0, trajectory_z)
         self.relative_move(0, trajectory_y, 0)
@@ -269,10 +280,10 @@ class Robot:
         self.environment_image, w, l = self.image_controller.get_image()
         self.image_controller.record_image(self.environment_image, True)
         # Final we put the robot in the center of the box, the episode should finish now
-        self.robot.go_to_joint_state(Environment.ANGULAR_CENTER)
+        self.robot.go_to_joint_state(self.env.ANGULAR_CENTER)
 
     def go_to_initial_pose(self):
-        target_reached = self.robot.go_to_joint_state(Environment.ANGULAR_CENTER)
+        target_reached = self.robot.go_to_joint_state(self.env.ANGULAR_CENTER)
 
         if target_reached:
             print("Target reachead")

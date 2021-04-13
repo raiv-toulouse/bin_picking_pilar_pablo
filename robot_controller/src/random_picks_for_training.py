@@ -23,49 +23,96 @@ rosrun robot_controller random_picks_for_training.py
 
 import rospy
 from robot import Robot
-from robot2 import Robot2
+
+from ai_manager.Environment import Environment
+from ai_manager.Environment import Env1
+from ai_manager.Environment import Env2
 
 if __name__ == '__main__':
-    number_box = 1
+    number_box = int(input("entrez le num de la boite: "))
+
+
     change_box = False
+    limit_piece = int(input("entrez le nombre de pièce: "))
+
     compt_object = 0
     from ai_manager.ImageController import ImageController
 
     rospy.init_node('random_picks_for_training')
     image_controller = ImageController(path='/home/student1/ros_pictures', image_topic='/usb_cam/image_raw')
-    robot = Robot()
-    robot2 = Robot2()
-    robot.go_to_initial_pose()
+    robot = Robot(Env1)
+
+    robot.relative_move(0, 0, 0.2)
+    if number_box == 1:
+        robot.go_to_initial_pose()
+    elif number_box == 2:
+        robot.change_environment(Env2)
+        robot.go_to_initial_pose()
+
     ind_image = 0
+
     while True:
         print("1")
+
         if number_box == 1:
-            robot.take_random_state()
+            if change_box == True:
+                robot.change_environment(Env1)
+                robot.go_to_initial_pose()
+            # robot.take_random_state()
             img, width, height = image_controller.get_image()
             object_gripped = robot.take_pick(no_rotation=True)
             if object_gripped == True:
                 compt_object += 1
+                robot.relative_move(0, 0, 0.08)
+                robot.relative_move(0, 0.2, 0)
+                # robot2.go_to_initial_pose()
+                robot.change_environment(Env2)
+                robot.take_random_state_fall()
+                robot.send_gripper_message(False)  # We turn off the gripper
+
+                if compt_object < limit_piece:
+                    robot.change_environment(Env1)
+                    robot.relative_move(0, -0.2, 0)
+                    robot.go_to_initial_pose()
 
 
         elif number_box == 2:
-            robot2.take_random_state()
+            if change_box == True:
+                robot.change_environment(Env2)
+                robot.go_to_initial_pose()
+            robot.take_random_state()
             img, width, height = image_controller.get_image()
 
-            object_gripped = robot2.take_pick(no_rotation=True)
+            object_gripped = robot.take_pick(no_rotation=True)
             if object_gripped == True:
                 compt_object += 1
+                robot.relative_move(0, 0, 0.08)
+                robot.relative_move(0, -0.2, 0)
+                # robot.go_to_initial_pose()
+                robot.change_environment(Env1)
+                robot.take_random_state_fall()
+                robot.send_gripper_message(False)  # We turn off the gripper
+
+                if compt_object < limit_piece:
+
+                    robot.relative_move(0, 0.2, 0)
+                    robot.change_environment(Env2)
+                    robot.go_to_initial_pose()
         print("2")
 
-        if compt_object == 1:
+        if compt_object == limit_piece:
             change_box = True
         else:
             change_box = False
 
         if change_box == True:
+
             if number_box == 1:
+
                 number_box = 2
                 compt_object = 0
             else:
+
                 number_box = 1
                 compt_object = 0
         print("3")
