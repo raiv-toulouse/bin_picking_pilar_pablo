@@ -1,58 +1,29 @@
 # import libraries
 
-import math
-import random
 from collections import Counter
-from copy import copy
-
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-import pandas as pd
-from PIL import Image
 import os
-
 import torchvision
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torchvision.transforms as T
 import pytorch_lightning as pl
-import torchvision.models as models
-from torch.utils.data import Dataset, DataLoader, random_split, SubsetRandomSampler, Subset, WeightedRandomSampler
-from pytorch_lightning import Trainer, seed_everything
+from torch.utils.data import Dataset, random_split, Subset, WeightedRandomSampler
 
 
 class MyImageModule(pl.LightningDataModule):
 
-    def __init__(self, batch_size, dataset_size=None):
+    def __init__(self, batch_size, dataset_size=None, data_dir="./images"):
         super().__init__()
         self.trains_dims = None
         self.batch_size = batch_size
-        # self.data_dir = './images/'
-
-        # test with CIFAR Pictures
-        self.data_dir = './cifar/'
-
+        self.data_dir = data_dir
         self.dataset_size = dataset_size
-
-    def _calculate_weights(self, dataset):
-        class_count = Counter(dataset.targets)
-        print("Class fail:", class_count[0])
-        print("Class success:", class_count[1])
-        count = np.array([class_count[0], class_count[1]])
-        weight = 1. / torch.Tensor(count)
-        weight_samples = np.array([weight[t] for t in dataset.targets])
-        return weight_samples
-
-    def setup(self, stage=None):
         self.transform = transforms.Compose([
             # you can add other transformations in this list
             # transforms.Grayscale(num_output_channels=1),
-            transforms.CenterCrop(size=224),
+            transforms.CenterCrop(size=224),  # Ancien code, les images font 256x256
             transforms.Resize(size=256),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -67,6 +38,24 @@ class MyImageModule(pl.LightningDataModule):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
+        # Used to correctly display images
+        self.inv_trans = transforms.Compose([transforms.Normalize(mean=[0., 0., 0.],
+                                                                 std=[1 / 0.229, 1 / 0.224, 1 / 0.225]),
+                                            transforms.Normalize(mean=[-0.485, -0.456, -0.406],
+                                                                 std=[1., 1., 1.]),
+                                            ])
+
+
+    def _calculate_weights(self, dataset):
+        class_count = Counter(dataset.targets)
+        print("Class fail:", class_count[0])
+        print("Class success:", class_count[1])
+        count = np.array([class_count[0], class_count[1]])
+        weight = 1. / torch.Tensor(count)
+        weight_samples = np.array([weight[t] for t in dataset.targets])
+        return weight_samples
+
+    def setup(self, stage=None):
         # Build Dataset
         dataset = datasets.ImageFolder(self.data_dir)
         weight_samples = self._calculate_weights(dataset)
@@ -93,25 +82,15 @@ class MyImageModule(pl.LightningDataModule):
         print("Len Val Data", len(val_data))
         print("Len Test Data", len(test_data))
 
-        # Esto es una guarrada : https://stackoverflow.com/questions/51782021/how-to-use-different-data-augmentation-for-subsets-in-pytorch
-        # train_data.dataset = copy(dataset)
-        # val_data.dataset = copy(dataset)
-        # test_data.dataset = copy(dataset)
-
-        # Data Augmentation for Training
-        # train_data.dataset.transform = self.augmentation
-        # # Transform Data
-        # val_data.dataset.transform = self.transform
-        # test_data.dataset.transform = self.transform
-
         # self.train_data = TransformSubset(train_data, transform=self.augmentation)
         self.train_data = TransformSubset(train_data, transform=self.transform)
         self.val_data = TransformSubset(val_data, transform=self.transform)
         self.test_data = TransformSubset(test_data, transform=self.transform)
 
-        print('Targets Train:', TransformSubset(self.train_data).count_targets())
-        print('Targets Val:', TransformSubset(self.val_data).count_targets())
-        print('Targets Test:', TransformSubset(self.test_data).count_targets())
+        # Ce code prend beaucoup de temps à s'exécuter.
+        # print('Targets Train:', TransformSubset(self.train_data).count_targets())
+        # print('Targets Val:', TransformSubset(self.val_data).count_targets())
+        # print('Targets Test:', TransformSubset(self.test_data).count_targets())
 
     def train_dataloader(self):
         train_loader = torch.utils.data.DataLoader(self.train_data, num_workers=16, batch_size=self.batch_size)
@@ -144,6 +123,24 @@ class MyImageModule(pl.LightningDataModule):
         print('Count class 0:', class_0)
         print('Count class 1:', class_1)
 
+    def plot_classes_images(self, images, labels):
+        '''
+        Generates matplotlib Figure along with images and labels from a batch
+        To be used with : writer.add_figure('Title', plot_classes_preds(images, classes))
+        '''
+        # plot the images in the batch, along with predicted and true labels
+        class_names = self.find_classes()
+        nb_images = len(images)
+        my_dpi = 96  # For my monitor (see https://www.infobyip.com/detectmonitordpi.php)
+        fig = plt.figure(figsize=(nb_images * 256 / my_dpi, 256 / my_dpi), dpi=my_dpi)
+        for idx in np.arange(nb_images):
+            ax = fig.add_subplot(1, nb_images, idx + 1, xticks=[], yticks=[])
+            img = self.inv_trans(images[idx])
+            npimg = img.cpu().numpy()
+            plt.imshow(np.transpose(npimg, (1, 2, 0)))
+            ax.set_title(class_names[labels[idx]])
+        return fig
+
 
 class TransformSubset(Dataset):
     def __init__(self, subset, transform=None):
@@ -167,3 +164,18 @@ class TransformSubset(Dataset):
             else:
                 count_class[1] += 1
         return count_class
+
+
+# --- MAIN ----
+if __name__ == '__main__':
+    from torch.utils.tensorboard import SummaryWriter
+
+    image_module = MyImageModule(batch_size=8)
+    image_module.setup()
+    images, labels = next(iter(image_module.val_dataloader()))
+    #print(images[0].shape)
+    grid = torchvision.utils.make_grid(images, nrow=8, padding=2)
+    writer = SummaryWriter()
+    writer.add_figure('images with labels', image_module.plot_classes_images(images, labels))
+    writer.add_image('some_images', image_module.inv_trans(grid))
+    writer.close()
