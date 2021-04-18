@@ -55,7 +55,7 @@ def create_dataloader(batch_size=4):
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    dataset = torchvision.datasets.ImageFolder('hymenoptera_data', transform=transform)
+    dataset = torchvision.datasets.ImageFolder('images', transform=transform)
     return DataLoader(dataset, batch_size, shuffle=False, num_workers=0)
 
 def infere_image(dataloader, inference_model, min, max):
@@ -82,7 +82,7 @@ def add_figure_to_tensorboard(ind, inputs, classes, writer, image_model):
 if __name__ == '__main__':
 
     # Load the best model for evaluation ################################################
-    image_model = ImageModel(model_name='resnet50')
+    image_model = ImageModel(model_name='resnet18')
     writer = SummaryWriter()
     model_name = image_model._find_name_of_best_model()
     print("The name of the evaluated model (the one with the smallest loss) is ", model_name)

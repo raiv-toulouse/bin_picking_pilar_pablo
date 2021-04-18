@@ -211,7 +211,7 @@ class CNN(pl.LightningModule):
         #self.custom_histogram_adder()
         # Calculate metrics
         loss_mean = self._calculate_epoch_metrics(outputs, name='Train')
-        print("training_epoch_end : loss_mean = ", loss_mean.item())
+        print(f"Epoch {self.current_epoch} : training_epoch_end : loss_mean = ", loss_mean.item())
 
     # validation loop
     def validation_step(self, batch, batch_idx):

@@ -14,7 +14,7 @@ import numpy as np
 # --- MAIN ----
 if __name__ == '__main__':
 
-    image_model = ImageModel(model_name='resnet50', num_epochs=20, dataset_size=1000)
+    image_model = ImageModel(model_name='resnet18', num_epochs=20, dataset_size=None)
 
     image_model.call_trainer()  # Train model
 
