@@ -85,8 +85,11 @@ class ImageModel:
         return feature_size
 
 
-    def evaluate_image(self, image, model):
-        image_tensor = self.image_preprocessing(image)
+    def evaluate_image(self, image, model, with_processing = True):
+        if with_processing:
+            image_tensor = self.image_preprocessing(image)
+        else:
+            image_tensor = image
         features, prediction = model(image_tensor)
         return features.detach().numpy(), prediction.detach()
 
