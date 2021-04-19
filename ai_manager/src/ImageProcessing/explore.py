@@ -6,6 +6,7 @@ from ImageModel import ImageModel
 from torchvision.transforms.functional import crop
 from torchvision import transforms
 from PIL import Image
+import os
 import torch
 import torchvision
 import numpy as np
@@ -37,25 +38,33 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("explore_ihm.ui",self)
-        QShortcut(QKeySequence('Ctrl+Z'), self, self.canvas.undo)
-        QShortcut(QKeySequence('Ctrl+R'), self, self.canvas.reset)
         self.btn_change_image.clicked.connect(self.change_image)
         self.btn_pick.clicked.connect(self.predict)
+        self.btn_load_model.clicked.connect(self.load_model)
         # Load the best model for evaluation ################################################
         self.image_model = ImageModel(model_name='resnet18')
-        model_name = self.image_model._find_name_of_best_model()
-        self.inference_model = self.image_model.load_model(model_name) # Load the best model
         self.transform = transforms.Compose([
             transforms.Lambda(lambda x : self.crop_xy(x)),
             transforms.Resize(size=256),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
+        self.inference_model = None
         self.change_image()
 
+    def load_model(self):
+        fname = QFileDialog.getOpenFileName(self, 'Open model file', '.', "Model files (*.ckpt)", options=QFileDialog.DontUseNativeDialog)
+        if fname[0]:
+            #model_name = self.image_model._find_name_of_best_model()
+            model_name = os.path.basename(fname[0])
+            self.inference_model = self.image_model.load_model(model_name) # Load the selected model
+            self.lbl_model_name.setText(fname[0])
+
     def change_image(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file', '.',"Image files (*.jpg *.gif *.png)")
-        self.set_image(fname[0])
+        fname = QFileDialog.getOpenFileName(self, 'Open image file', '.',"Image files (*.jpg *.gif *.png)", options=QFileDialog.DontUseNativeDialog)
+        if fname[0]:
+            self.lbl_image_name.setText(fname[0])
+            self.set_image(fname[0])
 
     def set_image(self,filename):
         self.canvas.set_image(filename)
