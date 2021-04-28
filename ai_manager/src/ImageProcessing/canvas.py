@@ -17,6 +17,7 @@ class Canvas(QWidget):
         self.image = QImage(filename)
         self.setMinimumSize(self.image.width(), self.image.height())
         self.previous_image = None
+        self.all_preds = None
         self.update()
 
     def mousePressEvent(self, event):
@@ -54,34 +55,47 @@ class Canvas(QWidget):
 
     def _draw_rectangle(self, qp):
         if self.parent.inference_model:  # A model exists, we can do inference
-            top = self.center.x() - WIDTH / 2
-            left = self.center.y()-HEIGHT/2
+            x = self.center.x() - WIDTH / 2
+            y = self.center.y()-HEIGHT/2
             qp.setRenderHint(QPainter.Antialiasing)
-            qp.setPen(QPen(Qt.red, 5))
+            qp.setPen(QPen(Qt.blue, 5))
             qp.drawPoint(self.center)
-            preds = self.parent.predict(self.center.x(), self.center.y())  # calculate the prediction wih CNN
-            prob,cl = torch.max(preds, 1)
-            if cl.item()==0:  # Fail
-                prob = 100 * (1 - prob.item())
-            else:  # Success
-                prob = 100 * prob.item()
+            pred = self.parent.predict(self.center.x(), self.center.y())  # calculate the prediction wih CNN
+            prob, cl = self._compute_prob_and_class(pred)
             fail_or_success = 'Fail' if cl.item()==0 else 'Success'
             text = f'{fail_or_success} : {prob:.1f}%'
             qp.setPen(Qt.black)
             qp.setFont(QFont('Decorative', 14))
-            qp.drawText(top, left, text)
+            qp.drawText(x, y, text)
             if cl.item() == 1:  # Success
                 qp.setPen(QPen(Qt.green, 1, Qt.DashLine))
             else:  # Fail
                 qp.setPen(QPen(Qt.red, 1, Qt.DashLine))
-            qp.drawRect(top, left, WIDTH, HEIGHT)
+            qp.drawRect(x, y, WIDTH, HEIGHT)
 
     def _draw_pred(self, qp):
-        for pred in self.all_preds:
-            prob,cl = torch.max(pred[2], 1)
-            if cl.item()==0:  # Fail
+        threshold = self.parent.sb_threshold.value()
+        for (x, y , pred) in self.all_preds:
+            tensor_prob,tensor_cl = torch.max(pred, 1)
+            if tensor_cl.item()==0 or (tensor_cl.item()==1 and tensor_prob.item()*100 < threshold):  # Fail
                 qp.setPen(QPen(Qt.red, 5))
             else:
                 qp.setPen(QPen(Qt.green, 5))
-            qp.drawPoint(pred[0], pred[1])
+            qp.drawPoint(x, y)
+            qp.setPen(Qt.black)
+            qp.setFont(QFont('Decorative', 8))
+            prob, cl = self._compute_prob_and_class(pred)
+            text = f'{prob:.1f}%'
+            qp.drawText(x, y, text)
+
+    def _compute_prob_and_class(self, pred):
+        prob, cl = torch.max(pred, 1)
+        if cl.item() == 0:  # Fail
+            prob = 100 * (1 - prob.item())
+        else:  # Success
+            prob = 100 * prob.item()
+        return prob, cl
+
+
+
 

@@ -84,7 +84,7 @@ class ImageModel:
         feature_size = model.get_size()
         return feature_size
 
-
+    @torch.no_grad()
     def evaluate_image(self, image, model, with_processing = True):
         if with_processing:
             image_tensor = self.image_preprocessing(image)
