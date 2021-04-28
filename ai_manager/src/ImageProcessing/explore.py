@@ -41,10 +41,12 @@ class MainWindow(QWidget):
         self.btn_change_image.clicked.connect(self.change_image)
         self.btn_pick.clicked.connect(self.predict)
         self.btn_load_model.clicked.connect(self.load_model)
+        self.btn_find_best.clicked.connect(self.find_best_solution)
+        self.btn_map.clicked.connect(self.compute_map)
         # Load the best model for evaluation ################################################
         self.image_model = ImageModel(model_name='resnet18')
         self.transform = transforms.Compose([
-            transforms.Lambda(lambda x : self.crop_xy(x)),
+            transforms.Lambda(lambda img : self.crop_xy(img)),
             transforms.Resize(size=256),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -58,12 +60,12 @@ class MainWindow(QWidget):
             #model_name = self.image_model._find_name_of_best_model()
             model_name = os.path.basename(fname[0])
             self.inference_model = self.image_model.load_model(model_name) # Load the selected model
-            self.lbl_model_name.setText(fname[0])
+            self.lbl_model_name.setText(model_name)
 
     def change_image(self):
         fname = QFileDialog.getOpenFileName(self, 'Open image file', '.',"Image files (*.jpg *.gif *.png)", options=QFileDialog.DontUseNativeDialog)
         if fname[0]:
-            self.lbl_image_name.setText(fname[0])
+            self.lbl_image_name.setText(os.path.basename(fname[0]))
             self.set_image(fname[0])
 
     def set_image(self,filename):
@@ -71,15 +73,37 @@ class MainWindow(QWidget):
         self.image = Image.open(filename)
 
     def crop_xy(self, image):
-        return crop(image, self.canvas.center.y()-HEIGHT/2, self.canvas.center.x()-WIDTH/2, HEIGHT, WIDTH)  # top, left, height, width
+        return crop(image, self.predict_center_y - HEIGHT/2, self.predict_center_x - WIDTH/2, HEIGHT, WIDTH)  # top, left, height, width
 
-    def predict(self):
-        img = self.transform(self.image)
+    def predict(self, x, y):
+        self.predict_center_x = x
+        self.predict_center_y = y
+        img = self.transform(self.image)  # Get the cropped transformed image
         #imshow(img)
         img = img.unsqueeze(0)  # To have a 4-dim tensor ([nb_of_images, channels, w, h])
         features, preds = self.image_model.evaluate_image(img, self.inference_model, False)  # No processing
-        self.lbl_result.setText(str(torch.exp(preds)))
+        #self.lbl_result.setText(str(torch.exp(preds)))
         return torch.exp(preds)
+
+    def find_best_solution(self):
+        pass
+
+    def compute_map(self):
+        all_preds = self._compute_all_preds()
+        self.canvas.all_preds = all_preds
+        self.canvas.repaint()
+
+    def _compute_all_preds(self):
+        all_preds = []
+        steps = int(self.edt_nb_pixels_per_step.text())
+        (im_width, im_height) = self.image.size
+        half_width = int(WIDTH/2)
+        half_height = int(HEIGHT/2)
+        for x in range(half_width, im_width -half_width, steps):
+            for y in range(half_height, im_height - half_height, steps):
+                preds = self.predict(x,y)
+                all_preds.append([x, y, preds])
+        return all_preds
 
 
 if __name__ == '__main__':

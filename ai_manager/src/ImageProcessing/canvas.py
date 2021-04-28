@@ -11,6 +11,7 @@ class Canvas(QWidget):
         self.parent = parent
         self.pressed = self.moving = False
         self.previous_image = None
+        self.all_preds = None
 
     def set_image(self,filename):
         self.image = QImage(filename)
@@ -37,7 +38,7 @@ class Canvas(QWidget):
         if event.button() == Qt.LeftButton:
             self.previous_image = self.image.copy()
             qp = QPainter(self.image)
-            self.draw_rectangle(qp)
+            self._draw_rectangle(qp)
             self.pressed = self.moving = False
             self.update()
 
@@ -46,16 +47,19 @@ class Canvas(QWidget):
         rect = event.rect()
         qp.drawImage(rect, self.image, rect)
         if self.moving or self.pressed:
-            self.draw_rectangle(qp)
+            self._draw_rectangle(qp)
+        if self.all_preds:
+            self._draw_pred(qp)
 
-    def draw_rectangle(self, qp):
+
+    def _draw_rectangle(self, qp):
         if self.parent.inference_model:  # A model exists, we can do inference
             top = self.center.x() - WIDTH / 2
             left = self.center.y()-HEIGHT/2
             qp.setRenderHint(QPainter.Antialiasing)
             qp.setPen(QPen(Qt.red, 5))
             qp.drawPoint(self.center)
-            preds = self.parent.predict()
+            preds = self.parent.predict(self.center.x(), self.center.y())  # calculate the prediction wih CNN
             prob,cl = torch.max(preds, 1)
             if cl.item()==0:  # Fail
                 prob = 100 * (1 - prob.item())
@@ -71,4 +75,13 @@ class Canvas(QWidget):
             else:  # Fail
                 qp.setPen(QPen(Qt.red, 1, Qt.DashLine))
             qp.drawRect(top, left, WIDTH, HEIGHT)
+
+    def _draw_pred(self, qp):
+        for pred in self.all_preds:
+            prob,cl = torch.max(pred[2], 1)
+            if cl.item()==0:  # Fail
+                qp.setPen(QPen(Qt.red, 5))
+            else:
+                qp.setPen(QPen(Qt.green, 5))
+            qp.drawPoint(pred[0], pred[1])
 
