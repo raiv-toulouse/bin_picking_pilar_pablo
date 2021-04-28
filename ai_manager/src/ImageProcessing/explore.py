@@ -42,12 +42,12 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("explore_ihm.ui",self)
-        self.btn_change_image.clicked.connect(self.change_image)
+        self.btn_change_image.clicked.connect(self._change_image)
         self.btn_pick.clicked.connect(self.predict)
-        self.btn_load_model.clicked.connect(self.load_model)
-        self.btn_find_best.clicked.connect(self.find_best_solution)
-        self.btn_map.clicked.connect(self.compute_map)
-        self.sb_threshold.valueChanged.connect(self.change_threshold)
+        self.btn_load_model.clicked.connect(self._load_model)
+        self.btn_find_best.clicked.connect(self._find_best_solution)
+        self.btn_map.clicked.connect(self._compute_map)
+        self.sb_threshold.valueChanged.connect(self._change_threshold)
         self.image_model = ImageModel(model_name='resnet18')
         self.transform = transforms.Compose([
             transforms.Lambda(lambda img: self._crop_xy(img)),
@@ -56,9 +56,9 @@ class MainWindow(QWidget):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         self.inference_model = None
-        self.change_image()
+        self._change_image()
 
-    def load_model(self):
+    def _load_model(self):
         """ Load a new model """
         fname = QFileDialog.getOpenFileName(self, 'Open model file', '.', "Model files (*.ckpt)", options=QFileDialog.DontUseNativeDialog)
         if fname[0]:
@@ -72,7 +72,7 @@ class MainWindow(QWidget):
         fname = QFileDialog.getOpenFileName(self, 'Open image file', '.',"Image files (*.jpg *.gif *.png)", options=QFileDialog.DontUseNativeDialog)
         if fname[0]:
             self.lbl_image_name.setText(os.path.basename(fname[0]))
-            self.set_image(fname[0])
+            self._set_image(fname[0])
 
     def _set_image(self, filename):
         self.canvas.set_image(filename)
