@@ -14,6 +14,7 @@ from CNN import CNN
 from MyImageModule import MyImageModule
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+from torch.utils.tensorboard import SummaryWriter
 
 plt.switch_backend('agg')
 torch.set_printoptions(linewidth=120)
@@ -39,7 +40,7 @@ class ImageModel:
         self.model = CNN(backbone=model_name)
         self.model_name = model_name
         # self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=100)
-        self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=self.dataset_size, data_dir='./images/')
+        self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=self.dataset_size, data_dir='./images3/')
         # Load images  ################################################
         self.image_module.setup()
         # For getting the features for the image
@@ -49,15 +50,19 @@ class ImageModel:
         self.MODEL_CKPT_PATH = os.path.join(current_path, f'model/{self.model_name}/')
         self.MODEL_CKPT = os.path.join(self.MODEL_CKPT_PATH, 'model-{epoch:02d}-{val_loss:.2f}')
         # Tensorboard Logger used
-        self.logger = TensorBoardLogger('tb_logs', name=f'Model_{self.model_name}')
+        self.logger = TensorBoardLogger('tb_logs3', name=f'Model_{self.model_name}')
         # Flag for feature extracting. When False, we finetune the whole model,when True we only update the reshaped
         self.fine_tuning = fine_tuning
 
     def call_trainer(self):
         # Samples required by the custom ImagePredictionLogger callback to log image predictions.
         val_samples = next(iter(self.image_module.val_dataloader()))
+
         grid = self.image_module.inv_trans(torchvision.utils.make_grid(val_samples[0], nrow=8, padding=2))
+        print(grid)
+
         # write to tensorboard
+
         self.logger.experiment.add_image('test', grid)
         self.logger.close()
         # Load callbacks ########################################

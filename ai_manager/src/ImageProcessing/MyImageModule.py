@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, random_split, Subset, WeightedRandomSample
 
 class MyImageModule(pl.LightningDataModule):
 
-    def __init__(self, batch_size, dataset_size=None, data_dir="./images"):
+    def __init__(self, batch_size, dataset_size=None, data_dir="./images3/"):
         super().__init__()
         self.trains_dims = None
         self.batch_size = batch_size
@@ -83,7 +83,7 @@ class MyImageModule(pl.LightningDataModule):
         print("Len Test Data", len(test_data))
 
         # self.train_data = TransformSubset(train_data, transform=self.augmentation)
-        self.train_data = TransformSubset(train_data, transform=self.transform)
+        self.train_data = TransformSubset(train_data, transform=self.augmentation)
         self.val_data = TransformSubset(val_data, transform=self.transform)
         self.test_data = TransformSubset(test_data, transform=self.transform)
 

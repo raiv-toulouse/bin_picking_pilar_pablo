@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#Work in progress: not saved on pycharm/Git
 import cv2
 import numpy as np
 import os
@@ -9,11 +9,11 @@ import yaml
 # File only for camera_calibration, only need to do it once before using the rest of the programn.
 
 # workingdir="/home/pi/Desktop/Captures/"
-savedir = 'camera_data/'
+savedir = 'Camera_data/'   #!!
 
 # Defining the dimensions of checkerboard
-CHECKERBOARD = (6, 5)
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+CHECKERBOARD = (8,6)
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 25, 0.0001)
 
 # Creating vector to store vectors of 3D points for each checkerboard image
 objpoints = []
@@ -27,7 +27,7 @@ objp[0,:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
-images = glob.glob('./final_pictures/*.png')
+images = glob.glob('/home/bin_picking/catkin_ws_noetic/src/bin_picking/ai_manager/src/BlobDetector/camera_calibration/Calibration_allimages/webcam/loin/*.jpg')
 for fname in images:
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -46,12 +46,11 @@ for fname in images:
         corners2 = cv2.cornerSubPix(gray, corners, (11,11),(-1,-1), criteria)
         
         imgpoints.append(corners2)
-
         # Draw and display the corners
         img = cv2.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
-    
+
     cv2.imshow('img',img)
-    cv2.waitKey(0)
+    cv2.waitKey(1000)
 
 cv2.destroyAllWindows()
 
@@ -66,6 +65,7 @@ detected corners (imgpoints)
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
 # Printing  and saving the results
+
 print("Camera matrix : \n")
 print(mtx)
 np.save(savedir + 'cam_mtx.npy', mtx)
@@ -94,7 +94,7 @@ print(inverse_newcam_mtx)
 np.save(savedir+'inverse_newcam_mtx.npy', inverse_newcam_mtx)
 
 # Method 1 to undistort the image
-dst = cv2.undistort(img, mtx, dist, None, new_camera_mtx)
+# dst = cv2.undistort(img, mtx, dist, None, new_camera_mtx)
 
 # Displaying the undistorted image
 cv2.imshow("undistorted image",dst)

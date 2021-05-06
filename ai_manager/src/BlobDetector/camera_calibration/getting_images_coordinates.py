@@ -1,23 +1,32 @@
 import cv2
 import numpy as np
+from PerspectiveCalibration import PerspectiveCalibration
 
 # global variables
-image_path = './camera_position/WIN_20201027_09_48_05_Pro.jpg'
+image_path = './Calibration_allimages/webcam/circle/2021-05-04-164701.jpg'
 image_coordinates = []
 
+dPoint = PerspectiveCalibration()
+dPoint.setup_camera()
 def click_event(event, x, y, flags, params): 
       
     # checking for left mouse clicks 
-    if event == cv2.EVENT_LBUTTONDOWN: 
-  
+    if event == cv2.EVENT_LBUTTONDOWN:
+
+
+        image_coord = [x,y]
+        xyz = dPoint.from_2d_to_3d(image_coord)
+
+
+        print(xyz)
         # displaying the coordinates on the Shell 
-        print(x, ' ', y)
+        #print(x, ' ', y)
         images_coordinates = image_coordinates.append([x, y])
         # displaying the coordinates 
         # on the image window 
         font = cv2.FONT_HERSHEY_SIMPLEX 
-        cv2.putText(img, str(x) + ',' +
-                    str(y), (x,y), font, 
+        cv2.putText(img, str(int(xyz[0][0])) + ' , ' +
+                    str(int(xyz[1][0])) + ' , ' + str(int(xyz[2][0])), (x,y), font,
                     0.5, (255, 0, 0), 2) 
         cv2.imshow('image', img) 
 

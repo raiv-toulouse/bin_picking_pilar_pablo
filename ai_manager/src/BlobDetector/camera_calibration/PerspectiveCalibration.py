@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 class PerspectiveCalibration:
     def __init__(self, draw=True,display = False,uwriteValues = True):
         current_path = os.path.dirname(os.path.realpath(__file__))
-        self.savedir = os.path.join(current_path, '../camera_data/')
+        self.savedir = os.path.join(current_path, 'Camera_data/')
         self.draw = draw
         self.display = display
         self.writeValues = uwriteValues
@@ -17,7 +17,7 @@ class PerspectiveCalibration:
     # Get the center of the image cx and cy
     def get_image_center(self):
         # load camera calibration
-        newcam_mtx = np.load(self.savedir + 'newcam_mtx.npy')
+        newcam_mtx = np.load(self.savedir + '/newcam_mtx.npy')
 
         # load center points from New Camera matrix
         cx = newcam_mtx[0, 2]
@@ -28,10 +28,10 @@ class PerspectiveCalibration:
     # Load parameters from the camera
     def load_parameters(self):
         # load camera calibration
-        cam_mtx = np.load(self.savedir + 'cam_mtx.npy')
-        dist = np.load(self.savedir + 'dist.npy')
-        roi = np.load(self.savedir + 'roi.npy')
-        newcam_mtx = np.load(self.savedir + 'newcam_mtx.npy')
+        cam_mtx = np.load(self.savedir + '/cam_mtx.npy')
+        dist = np.load(self.savedir + '/dist.npy')
+        roi = np.load(self.savedir + '/roi.npy')
+        newcam_mtx = np.load(self.savedir + '/newcam_mtx.npy')
         inverse_newcam_mtx = np.linalg.inv(newcam_mtx)
         np.save(self.savedir + 'inverse_newcam_mtx.npy', inverse_newcam_mtx)
 
@@ -52,8 +52,10 @@ class PerspectiveCalibration:
         # Rodrigues
         # print("R - rodrigues vecs")
         R_mtx, jac = cv2.Rodrigues(rotation_vector)
+        print(R_mtx)
+        print("r_mtx created")
         np.save(self.savedir + 'R_mtx.npy', R_mtx)
-
+        print("r_mtx saved")
         # Extrinsic Matrix
         Rt = np.column_stack((R_mtx, translation_vector))
         # print("R|t - Extrinsic Matrix:\n {0}".format(Rt))
@@ -65,12 +67,12 @@ class PerspectiveCalibration:
         np.save(self.savedir + 'P_mtx.npy', P_mtx)
 
     def load_checking_parameters(self):
-        rotation_vector = np.load(self.savedir + 'rotation_vector.npy')
-        translation_vector = np.load(self.savedir + 'translation_vector.npy')
-        R_mtx = np.load(self.savedir + 'R_mtx.npy')
-        Rt = np.load(self.savedir + 'Rt.npy')
-        P_mtx = np.load(self.savedir + 'P_mtx.npy')
-        inverse_newcam_mtx = np.load(self.savedir + 'inverse_newcam_mtx.npy')
+        rotation_vector = np.load(self.savedir + '/rotation_vector.npy')
+        translation_vector = np.load(self.savedir + '/translation_vector.npy')
+        R_mtx = np.load(self.savedir + '/R_mtx.npy')
+        Rt = np.load(self.savedir + '/Rt.npy')
+        P_mtx = np.load(self.savedir + '/P_mtx.npy')
+        inverse_newcam_mtx = np.load(self.savedir + '/inverse_newcam_mtx.npy')
 
         return rotation_vector, translation_vector, R_mtx, Rt, P_mtx, inverse_newcam_mtx
 
@@ -210,35 +212,34 @@ class PerspectiveCalibration:
         cx, cy = self.get_image_center()
         total_points_used = 10
 
-        X_center = 0.25
-        Y_center = -0.125
+        X_center = 32.558
+        Y_center = -1.111
         # Z_center = -85.0
-        Z_center = 0
-
+        Z_center = 61.2
         # COORDINATES OF REAL ENVIRONMENT
         world_points = np.array([[X_center, Y_center, Z_center],
-                                 [0.0, 0.0, Z_center],
-                                 [1.0, -1.5, Z_center],
-                                 [1.0, 1.5, Z_center],
-                                 [-1.0, 1.5, Z_center],
-                                 [-1, -1.5, Z_center],
-                                 [2.0, -2.5, Z_center],
-                                 [2.0, 2.5, Z_center],
-                                 [-2.0, 2.5, Z_center],
-                                 [-2, -2.5, Z_center], ], dtype=np.float32)
+                                 [38.223, -7.728, 62],
+                                 [38.109, 0.217, 61.3],
+                                 [37.971, 8.186, 62.2],
+                                 [34.142, -7.811, 61.5],
+                                 [34.024, 0.14, 61],
+                                 [33.882, 8.117, 61.1],
+                                 [30.06, -7.86, 61.4],
+                                 [29.872, 0.075, 61.4],
+                                 [29.783, 8.041, 62], ], dtype=np.float32)
 
         # MANUALLY INPUT THE DETECTED IMAGE COORDINATES HERE - Using function onclick
         # [u,v] center + 9 Image points
         image_points = np.array([[cx, cy],
-                                 [299, 239],
-                                 [198, 301],
-                                 [402, 308],
-                                 [404, 172],
-                                 [202, 168],
-                                 [126, 365],
-                                 [468, 378],
-                                 [472, 111],
-                                 [141, 103]], dtype=np.float32)
+                                 [441, 351],
+                                 [625, 364],
+                                 [808, 379],
+                                 [435, 445],
+                                 [618, 459],
+                                 [800, 474],
+                                 [429, 538],
+                                 [611, 551],
+                                 [792, 565]], dtype=np.float32)
         # For Real World Points, calculate Z from d*
         # world_points = calculate_z_total_points(world_points, X_center, Y_center)
 
@@ -247,20 +248,24 @@ class PerspectiveCalibration:
                                                                       flags=cv2.SOLVEPNP_ITERATIVE)
 
         if self.writeValues:
+            print("save")
             self.save_parameters(rotation_vector, translation_vector, newcam_mtx)
 
         # # Check the accuracy now
-        # mean, std = calculate_accuracy(world_points, image_points, total_points_used)
-        # print("Mean:{0}".format(mean) + "Std:{0}".format(std))
+        mean, std = self.calculate_accuracy(world_points, image_points, total_points_used)
+        print("Mean:{0}".format(mean) + "Std:{0}".format(std))
 
-# if __name__ == '__main__':
-#     draw = True
-#     image_path = 'camera_position/WIN_20201027_09_48_05_Pro.jpg'
-#     # world_coordinate = (17.51,17.83,-84.253)
-#     world_coordinate = (10.0, 22.0, 0.0)
-#     new_point2D = from_3d_to_2d(image_path, world_coordinate, draw)
-#
-#     # image_coordinates = [946.65573404,517.46556152]
-#     image_coordinates = [190.0, 373.0]
-#     new_point3D = from_2d_to_3d(image_coordinates)
-#     print(new_point3D)
+if __name__ == '__main__':
+
+    object = PerspectiveCalibration()
+    camera = object.setup_camera()
+    draw = True
+    image_path = 'Calibration_allimages/webcam/loin/2021-05-04-164701.jpg'
+    # world_coordinate = (17.51,17.83,-84.253)
+    world_coordinate = (10.0, 22.0, 0.0)
+    #new_point2D = object.from_3d_to_2d(image_path, world_coordinate, draw)
+
+    # image_coordinates = [946.65573404,517.46556152]
+    image_coordinates = [190.0, 373.0]
+    new_point3D = object.from_2d_to_3d(image_coordinates)
+    print(new_point3D)
