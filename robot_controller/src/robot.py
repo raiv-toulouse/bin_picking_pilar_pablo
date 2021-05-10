@@ -77,23 +77,31 @@ class Robot:
         relative_coordinate_y = self.env.CARTESIAN_CENTER[1] - absolut_coordinate_y
 
         return [relative_coordinate_x, relative_coordinate_y]
-    """
+
     # Action north: positive x
-    def take_north(self, distance= self.environment.ACTION_DISTANCE):
+    def take_north(self, distance=None):
+        if distance == None:
+            distance = self.env.ACTION_DISTANCE
         self.relative_move(distance, 0, 0)
 
     # Action south: negative x
-    def take_south(self, distance= self.environment.ACTION_DISTANCE):
+    def take_south(self, distance=None):
+        if distance == None:
+            distance = self.env.ACTION_DISTANCE
         self.relative_move(-distance, 0, 0)
 
     # Action east: negative y
-    def take_east(self, distance= self.environment.ACTION_DISTANCE):
+    def take_east(self, distance=None):
+        if distance == None:
+            distance = self.env.ACTION_DISTANCE
         self.relative_move(0, -distance, 0)
 
     # Action west: positive y
-    def take_west(self, distance= self.environment.ACTION_DISTANCE):
+    def take_west(self, distance=None):
+        if distance == None:
+            distance = self.env.ACTION_DISTANCE
         self.relative_move(0, distance, 0)
-    """
+
     def take_random_state(self):
         # Move robot to random positions using relative moves. Get coordinates
         relative_coordinates = Environment(self.env).generate_random_state(self.environment_image, self.random_state_strategy)
@@ -235,13 +243,13 @@ class Robot:
 
         if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
-
+        '''
         elif object_gripped and no_rotation == True:
             print("objet attrapé")
             #robot2.go_to_initial_pose()
-            #robot2.take_random_state_fall()
+            self.take_random_state()
 
-            #self.send_gripper_message(False)  # We turn off the gripper
+            self.send_gripper_message(False)  # We turn off the gripper
 
         else:
             print("objet attrapé")
@@ -249,7 +257,7 @@ class Robot:
             #robot2.take_random_state_fall()
 
             self.send_gripper_message(False)  # We turn off the gripper
-
+        '''
 
         return object_gripped
 

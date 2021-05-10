@@ -9,8 +9,10 @@ import rospy
 import torch
 
 from ai_manager.srv import GetActions, GetActionsResponse
-from RLAlgorithm import RLAlgorithm
-from Environment import Environment
+
+from ai_manager.Environment import Environment
+from ai_manager.Environment import Env_cam_bas
+from ai_manager.RLAlgorithm import RLAlgorithm
 
 rospy.init_node('ai_manager', anonymous=True)  # ROS node initialization
 # Global Image Controller
@@ -18,7 +20,7 @@ RL_ALGORITHM = RLAlgorithm.recover_training(batch_size=256, lr=0.0001,
                                             others='algorithm1901_including_prediction')
                                             # others='optimal_original_rewards_algorithm1901')
                                             # others = 'optimal_original_rewards_new_model')
-
+print(RL_ALGORITHM)
 def handle_get_actions(req):
     """
     Callback for each Request from the Robot

@@ -16,10 +16,11 @@ import torch.optim as optim
 import torchvision.transforms as T
 from PIL import Image
 
-from Environment import Environment
-from TrainingStatistics import TrainingStatistics
+from ai_manager.EnvironmentRL import Environment
+
+from ai_manager.TrainingStatistics import TrainingStatistics
 from ImageProcessing.ImageModel import ImageModel
-from ImageController import ImageController
+from ai_manager.ImageController import ImageController
 
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython: from IPython import display

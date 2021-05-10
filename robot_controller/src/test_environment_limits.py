@@ -13,6 +13,7 @@ import datetime
 
 from robot import Robot
 from ai_manager.Environment import Environment
+from ai_manager.Environment import Env_cam_bas
 
 
 def change_plan_speed(plan, new_speed):
@@ -110,7 +111,7 @@ def down_movement(robot, movement_speed):
 if __name__ == '__main__':
     rospy.init_node('robotUR')
 
-    robot = Robot()
+    robot = Robot(Env_cam_bas)
     robot.go_to_initial_pose()
 
     while True:
