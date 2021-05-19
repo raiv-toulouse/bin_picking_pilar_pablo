@@ -9,11 +9,11 @@ import yaml
 # File only for camera_calibration, only need to do it once before using the rest of the programn.
 
 # workingdir="/home/pi/Desktop/Captures/"
-savedir = 'Camera_data/'  # !!
+savedir = './Camera_data/'  # !!
 
 # Defining the dimensions of checkerboard
 CHECKERBOARD = (8, 6)
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 25, 0.0001)
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 25, 0.01)
 
 # Creating vector to store vectors of 3D points for each checkerboard image
 objpoints = []
@@ -27,7 +27,7 @@ prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
 images = glob.glob(
-    './loin/*.jpg')
+    './loin/Essai3/*.jpg')
 for fname in images:
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

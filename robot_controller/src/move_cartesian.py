@@ -21,14 +21,13 @@ if __name__ == '__main__':
     if 10 < abs(x) < 40 and abs(y) < 30 and 7 < z < 60:
 
         pose_goal = Pose()
-        pose_goal.position.x = -x/100
-        pose_goal.position.y = -y/100
-        pose_goal.position.z = z/100
+        pose_goal.position.x = -x / 100
+        pose_goal.position.y = -y / 100
+        pose_goal.position.z = z / 100
         pose_goal.orientation.x = 0.6679889495197082
         pose_goal.orientation.y = 0.20682604239647592
         pose_goal.orientation.z = -0.6823111630646372
         pose_goal.orientation.w = 0.21322576829161657
-
 
         myRobot.go_to_pose_goal(pose_goal)
         print("target reached")

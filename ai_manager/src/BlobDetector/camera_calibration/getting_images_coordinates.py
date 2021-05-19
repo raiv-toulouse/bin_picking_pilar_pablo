@@ -13,7 +13,7 @@ from moveit_commander.conversions import pose_to_list
 from ur_icam_description.robotUR import RobotUR
 import time
 # global variables
-image_path = './Image_point/2021-05-07-143556.jpg'
+image_path = './Image_point/2021-05-11-103325.jpg'
 image_coordinates = []
 
 # Création d'un objet de la classe PerspectiveCalibration
@@ -30,16 +30,16 @@ myRobot = RobotUR()
 rospy.init_node('robotUR')
 
 print(myRobot.get_current_pose())
-myRobot.acceleration_factor(1)
+#myRobot.acceleration_factor(1)
 
 #robot = Robot(Env_cam_bas)
 
 # Position Initiale du robot
 
 pose_init = Pose()
-pose_init.position.x = -29.242 / 100
-pose_init.position.y = 18.622 / 100
-pose_init.position.z = 0.25
+pose_init.position.x = -41.005 / 100
+pose_init.position.y = -11.746 / 100
+pose_init.position.z = 0.3
 pose_init.orientation.x = -0.4952562586434166
 pose_init.orientation.y = 0.49864161678730506
 pose_init.orientation.z = 0.5082803126324129
@@ -65,16 +65,16 @@ def click_event(event, x, y, flags, params):
         # cv2.putText(img, str(int(xyz[0][0])) + ' , ' +
         #             str(int(xyz[1][0])) + ' , ' + str(int(xyz[2][0])), (x, y), font,
         #             0.5, (255, 0, 0), 2)
-        cv2.putText(img, 'X', (x, y), font,
+        cv2.putText(img2, 'X', (x, y), font,
                      0.5, (255, 0, 0), 2)
-        cv2.imshow(nom_fenetre, img)
+        #cv2.imshow("image", img2)
 
         # Calcul du point visé par le click (position et orientation)
 
         pose_goal = Pose()
-        pose_goal.position.x = -xyz[0][0] / 100
-        pose_goal.position.y = -xyz[1][0] / 100
-        pose_goal.position.z = 0.061
+        pose_goal.position.x = -(xyz[0][0]-0.1) / 100
+        pose_goal.position.y = -(xyz[1][0]-0.1) / 100
+        pose_goal.position.z = 0.3
         pose_goal.orientation.x = -0.4952562586434166
         pose_goal.orientation.y = 0.49864161678730506
         pose_goal.orientation.z = 0.5082803126324129
@@ -89,7 +89,7 @@ def click_event(event, x, y, flags, params):
         #myRobot.go_to_pose_goal(pose_init)
 
     # reading the image
-#img2 = cv2.imread(image_path, 1)
+img2 = cv2.imread(image_path, 1)
 
 # displaying the image
 #cv2.imshow('image', img2)

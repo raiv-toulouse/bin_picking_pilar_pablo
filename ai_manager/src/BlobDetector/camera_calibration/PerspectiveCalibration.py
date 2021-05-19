@@ -210,36 +210,38 @@ class PerspectiveCalibration:
         cam_mtx, dist, roi, newcam_mtx, inverse_newcam_mtx = self.load_parameters()
         # load center points from New Camera matrix
         cx, cy = self.get_image_center()
+        print(cx, cy)
         total_points_used = 10
 
-        X_center = 34.182
-        Y_center = 1.474
+        X_center = 31.292
+        Y_center = 0.089
         # Z_center = -85.0
-        Z_center = 62.7
+        Z_center = 63.37691019
         # COORDINATES OF REAL ENVIRONMENT
         world_points = np.array([[X_center, Y_center, Z_center],
-                                 [38.223, 7.728, 63],
-                                 [38.109, -0.217, 62.5],
-                                 [37.971, -8.186, 63.1],
-                                 [34.142, 7.811, 62.9],
-                                 [34.024, -0.14, 62.5],
-                                 [33.882, -8.117, 63.5],
-                                 [30.06, 7.86, 63.5],
-                                 [29.872, -0.075, 63.1],
-                                 [29.783, -8.041, 63.8], ], dtype=np.float32)
+                                 [41.005, 11.746, 64.09574927],
+                                 [41.009, -0.061, 63.22025889],
+                                 [40.976, -12.015, 64.55784687],
+                                 [34.709, 11.809, 64.05267484],
+                                 [34.671, -0.069, 63.1674535],
+                                 [34.650, -11.944, 64.49431502],
+                                 [28.347, 11.802, 64.62345694],
+                                 [28.346, -0.100, 63.7464995],
+                                 [28.345, -11.942, 65.05985905]], dtype=np.float32)
 
         # MANUALLY INPUT THE DETECTED IMAGE COORDINATES HERE - Using function onclick
         # [u,v] center + 9 Image points
-        image_points = np.array([[cx, cy],
-                                 [475, 385],
-                                 [652, 376],
-                                 [830, 367],
-                                 [481, 477],
-                                 [657, 468],
-                                 [833, 459],
-                                 [486, 568],
-                                 [662, 556],
-                                 [838, 549]], dtype=np.float32)
+        image_points = np.array([[647, 477],
+                                 [370, 275],
+                                 [639, 263],
+                                 [907, 249],
+                                 [381, 419],
+                                 [646, 406],
+                                 [912, 392],
+                                 [390, 559],
+                                 [654, 546],
+                                 [916, 532]
+                                 ], dtype=np.float32)
         # For Real World Points, calculate Z from d*
         # world_points = calculate_z_total_points(world_points, X_center, Y_center)
 

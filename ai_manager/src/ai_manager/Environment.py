@@ -11,8 +11,8 @@ from math import floor
 
 class Env1:
 
-    X_LENGTH = 0.24  # Total length of the x axis environment in meters
-    Y_LENGTH = 0.167  # Total length of the y axis environment in meters
+    X_LENGTH = 0.20  # Total length of the x axis environment in meters
+    Y_LENGTH = 0.15  # Total length of the y axis environment in meters
 
     CAMERA_SECURITY_MARGIN = 0.1 # As the camera is really close to the gripping point, it needs  a security marging
     X_LIMIT = X_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis X
@@ -62,14 +62,14 @@ class Env2:
 
 class Env_cam_bas:
 
-    X_LENGTH = 0.22  # Total length of the x axis environment in meters
-    Y_LENGTH = 0.31 # Total length of the y axis environment in meters
+    X_LENGTH = 0.20  # Total length of the x axis environment in meters
+    Y_LENGTH = 0.25 # Total length of the y axis environment in meters
 
     CAMERA_SECURITY_MARGIN = 0.03  # As the camera is really close to the gripping point, it needs  a security marging
     X_LIMIT = X_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis X
     Y_LIMIT = Y_LENGTH - CAMERA_SECURITY_MARGIN  # Robot boundaries of movement in axis Y
 
-    FALL_SECURITY_MARGIN = 0.1  # As the camera is really close to the gripping point, it needs  a security marging
+    FALL_SECURITY_MARGIN = 0.3 # As the camera is really close to the gripping point, it needs  a security marging
     X_LIMIT_FALL = X_LENGTH - FALL_SECURITY_MARGIN  # Robot boundaries of movement in axis X
     Y_LIMIT_FALL = Y_LENGTH - FALL_SECURITY_MARGIN  # Robot boundaries of movement in axis Y
 

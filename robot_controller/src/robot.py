@@ -47,10 +47,10 @@ class Robot:
         waypoints = []
         wpose = self.robot.get_current_pose().pose
         if x:
-            wpose.position.x -= x  # First move up (x)
+            wpose.position.x += x  # First move up (x)
             waypoints.append(copy.deepcopy(wpose))
         if y:
-            wpose.position.y -= y  # Second move forward/backwards in (y)
+            wpose.position.y += y  # Second move forward/backwards in (y)
             waypoints.append(copy.deepcopy(wpose))
         if z:
             wpose.position.z += z  # Third move sideways (z)
@@ -240,10 +240,10 @@ class Robot:
         back_to_original_pose(self)  # Back to the original pose
 
         object_gripped = rospy.wait_for_message('object_gripped', Bool).data
-
+        '''
         if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
-        '''
+        
         elif object_gripped and no_rotation == True:
             print("objet attrapé")
             #robot2.go_to_initial_pose()

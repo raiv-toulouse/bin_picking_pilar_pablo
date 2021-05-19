@@ -40,7 +40,7 @@ if __name__ == '__main__':
     from ai_manager.ImageController import ImageController
 
     rospy.init_node('random_picks_for_training')
-    image_controller = ImageController(path='/home/student1/ros_pictures', image_topic='/usb_cam/image_raw')
+    image_controller = ImageController(path='/home/student1/ros_pictures/camera_haute', image_topic='/usb_cam/image_raw')
     robot = Robot(Env_cam_bas)
 
     robot.relative_move(0, 0, 0.1)
