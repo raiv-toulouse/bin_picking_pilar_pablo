@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, random_split, Subset, WeightedRandomSample
 
 class MyImageModule(pl.LightningDataModule):
 
-    def __init__(self, batch_size, dataset_size=None, data_dir="./images3/"):
+    def __init__(self, batch_size, dataset_size=None, data_dir="./image_camHaute/Camera_haute"):
         super().__init__()
         self.trains_dims = None
         self.batch_size = batch_size

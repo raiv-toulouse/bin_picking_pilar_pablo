@@ -9,7 +9,7 @@ import rospy
 import rospkg
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from moveit_commander.conversions import pose_to_list
-#from robot_controller.robot import Robot
+from robot2 import Robot
 from ur_icam_description.robotUR import RobotUR
 import time
 # global variables
