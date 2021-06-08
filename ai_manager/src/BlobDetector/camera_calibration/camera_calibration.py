@@ -27,7 +27,7 @@ prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
 images = glob.glob(
-    './loin/Essai3/*.jpg')
+    './loin/Essai5/*.jpg')
 for fname in images:
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

@@ -2,8 +2,44 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import torch
-WIDTH = HEIGHT = 224
-
+import sys
+from PyQt5 import uic
+from ImageProcessing.ImageModel import ImageModel
+from torchvision.transforms.functional import crop
+from torchvision import transforms
+import os
+import time
+import torchvision
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+import queue
+import datetime
+from BlobDetector.camera_calibration.PerspectiveCalibration import PerspectiveCalibration
+#########################################################################"
+import cv2
+import threading
+from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
+from BlobDetector.camera_calibration.PerspectiveCalibration import PerspectiveCalibration
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import moveit_commander
+import rospy
+import rospkg
+from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
+from moveit_commander.conversions import pose_to_list
+from robot2 import Robot
+from ai_manager.Environment import Environment
+from ai_manager.Environment import Env_cam_bas
+from ai_manager.ImageController import ImageController
+import random
+from ur_icam_description.robotUR import RobotUR
+WIDTH = HEIGHT = 56
+dPoint = PerspectiveCalibration()
+dPoint.setup_camera()
+robot2 = Robot(Env_cam_bas)
+rospy.init_node('robotUR')
+myRobot = RobotUR()
+image_controller = ImageController(image_topic='/usb_cam2/image_raw')
 class Canvas(QWidget):
 
     def __init__(self,parent):
@@ -21,7 +57,7 @@ class Canvas(QWidget):
         self.update()
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.RightButton:
             if self.previous_image:  # A new click, we restore the previous image without the rectangle
                 self.image = self.previous_image
                 self.setMinimumSize(self.image.width(), self.image.height())
@@ -29,14 +65,97 @@ class Canvas(QWidget):
             self.center = event.pos()
             self.update()
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+
+            pos = event.pos()
+            print(pos)
+
+            # on prend la photo
+            img, width, height = image_controller.get_image()
+
+            # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
+            image_path = '{}/img{}.png'.format(  # Saving image
+                "{}/success".format(
+                    '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/image_camHaute/Update_images'),
+                # Path
+                "update")  # FIFO queue
+
+            # sauvegarde de la photo
+            img.save(image_path)
+
+            # chemin d'accès à la photo prise
+            path = r'/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/image_camHaute/Update_images/success/imgupdate.png'
+
+            # chargement de la photo avec OpenCV
+            frame = cv2.imread(path)
+            center = [pos.x() + 112, pos.y() + 112]
+            h = 224
+            w = 224
+            y = pos.y() - 112
+            x = pos.x() - 112
+            crop = frame[y:y + h, x:x + w]
+
+            cv2.imshow("crop", crop)
+            cv2.waitKey(1000)
+
+            image_coord = [pos.x(), pos.y()]
+            xyz = dPoint.from_2d_to_3d(image_coord)
+            print(xyz)  # ok
+            goal_x = -xyz[0][0] / 100 + 0.7 / 100
+            goal_y = -xyz[1][0] / 100 + 2.2 / 100
+
+            # calcul du déplacement à effectuer pour passer du point courant au point cible
+            move_x = goal_x - robot2.robot.get_current_pose().pose.position.x
+            move_y = goal_y - robot2.robot.get_current_pose().pose.position.y
+
+            # mouvement vers le point cible
+            robot2.relative_move(move_x, move_y, 0)
+
+            # Lancement de l'action de prise
+            object_gripped = robot2.take_pick(no_rotation=True)
+
+            if object_gripped:
+
+                # création d'un point de lâcher aléatoire
+                release_goal_x = -random.randrange(30, 38) / 100
+                release_goal_y = -random.randrange(-9, 9) / 100
+
+                # calcul du déplacement à effectuer pour passer du point courant au point de lâcher
+                move_release_x = release_goal_x - robot2.robot.get_current_pose().pose.position.x
+                move_release_y = release_goal_y - robot2.robot.get_current_pose().pose.position.y
+
+                # mouvement vers le point de lâcher
+                robot2.relative_move(move_release_x, move_release_y, 0)
+
+                # on éteind la pompe
+                robot2.send_gripper_message(False)
+
+                # on sauvegarde l'image crop dans le dossier success
+                cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/success',
+                                         'success' + str(datetime.datetime.now()) + '.jpg'), crop)
+
+            else:
+
+                # on éteind la pompe
+                robot2.send_gripper_message(False)
+
+                # on sauvegarde l'image crop dans le dossier fail
+                cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/fail',
+                                         'fail' + str(datetime.datetime.now()) + '.jpg'), crop)
+
+
+            self.update()
+            self.parent._change_image()
+
     def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton:
+        if event.buttons() & Qt.RightButton:
             self.moving = True
             self.center = event.pos()
             self.update()
 
     def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.RightButton:
             self.previous_image = self.image.copy()
             qp = QPainter(self.image)
             self._draw_rectangle(qp)

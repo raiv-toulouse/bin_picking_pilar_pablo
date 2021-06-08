@@ -5,6 +5,8 @@ from ImageProcessing.ImageModel import ImageModel
 from torchvision.transforms.functional import crop
 from torchvision import transforms
 from PIL import Image
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
 import os
 import time
 import torch
@@ -12,11 +14,11 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-
-
+import queue
+from threading import Thread
 #########################################################################"
 import cv2
-
+import threading
 
 from BlobDetector.camera_calibration.PerspectiveCalibration import PerspectiveCalibration
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
@@ -28,7 +30,7 @@ from moveit_commander.conversions import pose_to_list
 from robot2 import Robot
 from ai_manager.Environment import Environment
 from ai_manager.Environment import Env_cam_bas
-
+from ai_manager.ImageController import ImageController
 from ur_icam_description.robotUR import RobotUR
 
 
@@ -43,27 +45,30 @@ dPoint.setup_camera()
 
 robot2 = Robot(Env_cam_bas)
 
+rospy.init_node('robotUR')
+myRobot = RobotUR()
 
 matplotlib.use('Qt5Agg')
 
-WIDTH = HEIGHT = 224  # Size of cropped image
+WIDTH = HEIGHT = 56 # Size of cropped image
 
-# def imshow(images, title=None, pil_image = False):
-#     """Imshow for Tensor."""
-#     if pil_image:
-#         inp = images
-#     else:
-#         img_grid = torchvision.utils.make_grid(images).cpu()
-#         inp = img_grid.numpy().transpose((1, 2, 0))
-#     mean = np.array([0.485, 0.456, 0.406])
-#     std = np.array([0.229, 0.224, 0.225])
-#     inp = std * inp + mean
-#     inp = np.clip(inp, 0, 1)
-#     plt.imshow(inp)
-#     if title is not None:
-#         plt.title(title)
-#     plt.pause(2)
+image_controller = ImageController(image_topic='/usb_cam2/image_raw')
 
+def imshow(images, title=None, pil_image = False):
+    """Imshow for Tensor."""
+    if pil_image:
+        inp = images
+    else:
+        img_grid = torchvision.utils.make_grid(images).cpu()
+        inp = img_grid.numpy().transpose((1, 2, 0))
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    inp = std * inp + mean
+    inp = np.clip(inp, 0, 1)
+    plt.imshow(inp)
+    if title is not None:
+        plt.title(title)
+    plt.pause(2)
 
 class MainWindow(QWidget):
     """
@@ -73,6 +78,12 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("explore_ihm2.ui",self) #needs the canvas.py file in the current directory
+        self.title = 'Camera'
+        self.label = QLabel(self)
+        lay = QVBoxLayout()
+        lay.addWidget(self.label)
+        self.setLayout(lay)
+
         self.btn_change_image.clicked.connect(self._change_image)
         self.btn_pick.clicked.connect(self.predict)
         self.btn_load_model.clicked.connect(self._load_model)
@@ -89,6 +100,14 @@ class MainWindow(QWidget):
         ])
         self.inference_model = None
         self._change_image()
+        self._load_model()
+
+
+
+    @pyqtSlot(QImage)
+    def setImage(self, image):
+        self.label.setPixmap(QPixmap.fromImage(image))
+        self.th.writer.write(image)
 
     def _load_model(self):
         """ Load a new model """
@@ -100,11 +119,54 @@ class MainWindow(QWidget):
             self.lbl_model_name.setText(model_name)
 
     def _change_image(self):
-        """ Load a new image """
-        fname = QFileDialog.getOpenFileName(self, 'Open image file', '.',"Image files (*.jpg *.gif *.png)", options=QFileDialog.DontUseNativeDialog)
-        if fname[0]:
-            self.lbl_image_name.setText(os.path.basename(fname[0]))
-            self._set_image(fname[0])
+
+        # """ Load a new image """
+        # fname = QFileDialog.getOpenFileName(self, 'Open image file', '.', "Image files (*.jpg *.gif *.png)",
+        #                                     options=QFileDialog.DontUseNativeDialog)
+        # if fname[0]:
+        #     self.lbl_image_name.setText(os.path.basename(fname[0]))
+        #     self._set_image(fname[0])
+
+        self.move_robot_to_take_pic()
+
+        img, width, height = image_controller.get_image()
+
+        # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
+        image_path = '{}/img{}.png'.format("{}".format('./'),"update")  # FIFO queue
+
+        # sauvegarde de la photo
+        img.save(image_path)
+        fname = "imgupdate.png"
+
+        self._set_image(fname)
+
+    def move_robot_to_take_pic(self):
+
+
+
+        # création d'une position initiale
+        # coordonées de la position de décalage (pour que le robot de soit pas sur la prochaine photo)
+        self.init_x = -30.312 / 100
+        self.init_y = 27.68 / 100
+        self.init_z = 0.3
+
+        # calcul du déplacement à effectuer pour passer du point courant au point de décalage
+        self.move_init_x = self.init_x - robot2.robot.get_current_pose().pose.position.x
+        self.move_init_y = self.init_y - robot2.robot.get_current_pose().pose.position.y
+        self.move_init_z = self.init_z - robot2.robot.get_current_pose().pose.position.z
+
+        # mouvement vers le point de décalage
+        robot2.relative_move(self.move_init_x, self.move_init_y, self.move_init_z)
+
+        self.pose_init = Pose()
+        self.pose_init.position.x = robot2.robot.get_current_pose().pose.position.x
+        self.pose_init.position.y = robot2.robot.get_current_pose().pose.position.y
+        self.pose_init.position.z = 0.3
+        self.pose_init.orientation.x = -0.4952562586434166
+        self.pose_init.orientation.y = 0.49864161678730506
+        self.pose_init.orientation.z = 0.5082803126324129
+        self.pose_init.orientation.w = 0.497723718615624
+        myRobot.go_to_pose_goal(self.pose_init)
 
     def _set_image(self, filename):
         self.canvas.set_image(filename)
@@ -119,7 +181,7 @@ class MainWindow(QWidget):
         self.predict_center_x = x
         self.predict_center_y = y
         img = self.transform(self.image)  # Get the cropped transformed image
-        #imshow(img)
+        # imshow(img)
         img = img.unsqueeze(0)  # To have a 4-dim tensor ([nb_of_images, channels, w, h])
         features, preds = self.image_model.evaluate_image(img, self.inference_model, False)  # No processing
         #self.lbl_result.setText(str(torch.exp(preds)))
@@ -135,6 +197,7 @@ class MainWindow(QWidget):
         all_preds.sort(key=lambda pred: pred[2][0][1].item(), reverse=True)
         self.canvas.all_preds = [all_preds[0]]
         self.canvas.repaint()
+        return  self.canvas.all_preds
 
     def _compute_map(self):
         """ Compute a list of predictions and ask the canvas to draw them"""
@@ -153,8 +216,12 @@ class MainWindow(QWidget):
         half_width = int(WIDTH/2)
         half_height = int(HEIGHT/2)
         count = 0
-        for x in range(half_width, im_width -half_width, steps):
-            for y in range(half_height, im_height - half_height, steps):
+        start_width = int(0.3*im_width+half_width)
+        end_width = int(im_width -(half_width+0.2*im_width))
+        start_height = int(0.25*im_height+half_height)
+        end_height = int(im_height - (half_height + 0.25*im_height))
+        for x in range(start_width, end_width, steps):
+            for y in range(start_height, end_height, steps):
                 preds = self.predict(x,y)
                 all_preds.append([x, y, preds])
                 count += 1
@@ -166,34 +233,49 @@ class MainWindow(QWidget):
         """Compute a list of predictions like _compute_all_preds, sort them like _find_best_solution
         Transform pixel to real coordinates
         Command robot"""
-        all_preds = self._compute_all_preds()  # [ [x, y, tensor([[prob_fail, proba_success]])], ...]
-        all_preds.sort(key=lambda pred: pred[2][0][1].item(), reverse=True)
-        self.canvas.all_preds = [all_preds[0]]
-        self.canvas.repaint()
-        #print("Best x", all_preds[0][0]) #ok
-        #print("Best y", all_preds[0][1]) #ok
-        image_coord=[all_preds[0][0],all_preds[0][1]]
-        #print(image_coord) #ok
 
-        xyz = dPoint.from_2d_to_3d(image_coord)
-        print(xyz) #ok
-        goal_x = -xyz[0][0] / 100
-        goal_y = -xyz[1][0] / 100
+        for i in range (1, 2):
 
-        # calcul du déplacement à effectuer pour passer du point courant au point cible
-        move_x = goal_x - robot2.robot.get_current_pose().pose.position.x
-        move_y = goal_y - robot2.robot.get_current_pose().pose.position.y
+            all_preds = self._compute_all_preds()  # [ [x, y, tensor([[prob_fail, proba_success]])], ...]
+            all_preds.sort(key=lambda pred: pred[2][0][1].item(), reverse=True)
+            self.canvas.all_preds = [all_preds[0]]
+            self.canvas.repaint()
+            #print("Best x", all_preds[0][0]) #ok
+            #print("Best y", all_preds[0][1]) #ok
+            image_coord=[all_preds[0][0],all_preds[0][1]]
+            #print(image_coord) #ok
 
-        # mouvement vers le point cible
-        robot2.relative_move(move_x, move_y, 0)
+            xyz = dPoint.from_2d_to_3d(image_coord)
+            print(xyz) #ok
+            goal_x = -xyz[0][0] / 100 + 0.7 / 100
+            goal_y = -xyz[1][0] / 100 + 2.2 / 100
+
+            # calcul du déplacement à effectuer pour passer du point courant au point cible
+            move_x = goal_x - robot2.robot.get_current_pose().pose.position.x
+            move_y = goal_y - robot2.robot.get_current_pose().pose.position.y
+
+            # mouvement vers le point cible
+            robot2.relative_move(move_x, move_y, 0)
+
+
+
+            object_gripped = robot2.take_pick(no_rotation=True)
+            self.move_robot_to_take_pic()
+            robot2.send_gripper_message(False)
+
+            self.update()
+            self._change_image()
+
 
 
 
 
 if __name__ == '__main__':
 
+
     app = QApplication(sys.argv)
     gui = MainWindow()
+
     gui.show()
 
     sys.exit(app.exec_())

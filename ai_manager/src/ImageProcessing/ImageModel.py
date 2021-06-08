@@ -39,7 +39,7 @@ class ImageModel:
         self.model = CNN(backbone=model_name)
         self.model_name = model_name
         # self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=100)
-        self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=self.dataset_size, data_dir='./image_camHaute/Camera_haute')
+        self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=self.dataset_size, data_dir='./image_camHaute/200x224')
         # Load images  ################################################
         self.image_module.setup()
         # For getting the features for the image

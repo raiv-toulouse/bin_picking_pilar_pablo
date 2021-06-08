@@ -9,11 +9,11 @@ import rospy
 import rospkg
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from moveit_commander.conversions import pose_to_list
-from robot2 import Robot
+#from robot import Robot
 from ur_icam_description.robotUR import RobotUR
 import time
 # global variables
-image_path = './Image_point/2021-05-11-103325.jpg'
+image_path = './Image_point/*.jpg'
 image_coordinates = []
 
 # Création d'un objet de la classe PerspectiveCalibration
@@ -39,7 +39,7 @@ print(myRobot.get_current_pose())
 pose_init = Pose()
 pose_init.position.x = -41.005 / 100
 pose_init.position.y = -11.746 / 100
-pose_init.position.z = 0.3
+pose_init.position.z = 0.22
 pose_init.orientation.x = -0.4952562586434166
 pose_init.orientation.y = 0.49864161678730506
 pose_init.orientation.z = 0.5082803126324129
@@ -72,9 +72,9 @@ def click_event(event, x, y, flags, params):
         # Calcul du point visé par le click (position et orientation)
 
         pose_goal = Pose()
-        pose_goal.position.x = -(xyz[0][0]-0.1) / 100
-        pose_goal.position.y = -(xyz[1][0]-0.1) / 100
-        pose_goal.position.z = 0.3
+        pose_goal.position.x = -(xyz[0][0]) / 100 + 0.5 / 100
+        pose_goal.position.y = -(xyz[1][0]) / 100 - 0.5 / 100
+        pose_goal.position.z = 0.22
         pose_goal.orientation.x = -0.4952562586434166
         pose_goal.orientation.y = 0.49864161678730506
         pose_goal.orientation.z = 0.5082803126324129
