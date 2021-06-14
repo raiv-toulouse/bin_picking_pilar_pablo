@@ -4,7 +4,7 @@ from PyQt5 import uic
 from ImageProcessing.ImageModel import ImageModel
 from torchvision.transforms.functional import crop
 from torchvision import transforms
-from PIL import Image
+from PIL import Image as image
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
 import os
@@ -32,6 +32,7 @@ from ai_manager.Environment import Environment
 from ai_manager.Environment import Env_cam_bas
 from ai_manager.ImageController import ImageController
 from ur_icam_description.robotUR import RobotUR
+from std_msgs.msg import Bool, Int32MultiArray
 
 
 # global variables
@@ -45,7 +46,11 @@ dPoint.setup_camera()
 
 robot2 = Robot(Env_cam_bas)
 
-rospy.init_node('robotUR')
+Pub3 = rospy.Publisher("pixel_coordinates", Int32MultiArray, queue_size=10)
+
+rospy.init_node('explore2')
+rate = rospy.Rate(0.5)
+
 myRobot = RobotUR()
 
 matplotlib.use('Qt5Agg')
@@ -84,8 +89,8 @@ class MainWindow(QWidget):
         lay.addWidget(self.label)
         self.setLayout(lay)
 
-        self.btn_change_image.clicked.connect(self._change_image)
-        self.btn_pick.clicked.connect(self.predict)
+        self.btn_change_image.clicked.connect(self._move_robot)
+        # self.btn_pick.clicked.connect(self.predict)
         self.btn_load_model.clicked.connect(self._load_model)
         self.btn_find_best.clicked.connect(self._find_best_solution)
         self.btn_map.clicked.connect(self._compute_map)
@@ -99,7 +104,7 @@ class MainWindow(QWidget):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         self.inference_model = None
-        self._change_image()
+        self._move_robot()
         self._load_model()
 
 
@@ -118,7 +123,7 @@ class MainWindow(QWidget):
             self.inference_model = self.image_model.load_model(model_name)  # Load the selected model
             self.lbl_model_name.setText(model_name)
 
-    def _change_image(self):
+    def _move_robot(self):
 
         # """ Load a new image """
         # fname = QFileDialog.getOpenFileName(self, 'Open image file', '.', "Image files (*.jpg *.gif *.png)",
@@ -139,6 +144,30 @@ class MainWindow(QWidget):
         fname = "imgupdate.png"
 
         self._set_image(fname)
+
+        msg = True
+
+    def _change_image(self):
+        # """ Load a new image """
+        # fname = QFileDialog.getOpenFileName(self, 'Open image file', '.', "Image files (*.jpg *.gif *.png)",
+        #                                     options=QFileDialog.DontUseNativeDialog)
+        # if fname[0]:
+        #     self.lbl_image_name.setText(os.path.basename(fname[0]))
+        #     self._set_image(fname[0])
+
+        img, width, height = image_controller.get_image()
+
+        # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
+        image_path = '{}/img{}.png'.format("{}".format('./'), "update")  # FIFO queue
+
+        # sauvegarde de la photo
+        img.save(image_path)
+        fname = "imgupdate.png"
+
+        self._set_image(fname)
+
+
+
 
     def move_robot_to_take_pic(self):
 
@@ -170,7 +199,7 @@ class MainWindow(QWidget):
 
     def _set_image(self, filename):
         self.canvas.set_image(filename)
-        self.image = Image.open(filename)
+        self.image = image.open(filename)
 
     def _crop_xy(self, image):
         """ Crop image at position (predict_center_x,predict_center_y) and with size (WIDTH,HEIGHT) """
@@ -234,38 +263,42 @@ class MainWindow(QWidget):
         Transform pixel to real coordinates
         Command robot"""
 
-        for i in range (1, 2):
 
-            all_preds = self._compute_all_preds()  # [ [x, y, tensor([[prob_fail, proba_success]])], ...]
+        list = []
+        all_preds = self._compute_all_preds()
+
+        for i in range(1,3):
+
             all_preds.sort(key=lambda pred: pred[2][0][1].item(), reverse=True)
-            self.canvas.all_preds = [all_preds[0]]
+            print(len(all_preds))
+            self.canvas.all_preds = all_preds
             self.canvas.repaint()
-            #print("Best x", all_preds[0][0]) #ok
-            #print("Best y", all_preds[0][1]) #ok
-            image_coord=[all_preds[0][0],all_preds[0][1]]
-            #print(image_coord) #ok
 
-            xyz = dPoint.from_2d_to_3d(image_coord)
-            print(xyz) #ok
-            goal_x = -xyz[0][0] / 100 + 0.7 / 100
-            goal_y = -xyz[1][0] / 100 + 2.2 / 100
+            image_coord = [all_preds[0][0], all_preds[0][1]]
+            print(image_coord)
 
-            # calcul du déplacement à effectuer pour passer du point courant au point cible
-            move_x = goal_x - robot2.robot.get_current_pose().pose.position.x
-            move_y = goal_y - robot2.robot.get_current_pose().pose.position.y
+            a = Int32MultiArray()
+            a.data = image_coord
+            Pub3.publish(a)
+            time.sleep(2)
+            compt = 0
 
-            # mouvement vers le point cible
-            robot2.relative_move(move_x, move_y, 0)
+            for j in all_preds:
 
+                if all_preds[0][0] - 200 < j[0] < all_preds[0][0] + 200 and all_preds[0][1] - 200 < j[1] < all_preds[0][1] + 200:
+                    all_preds.pop(compt)
+                else:
+                    list.append(all_preds[compt])
 
+                compt = compt + 1
 
-            object_gripped = robot2.take_pick(no_rotation=True)
-            self.move_robot_to_take_pic()
-            robot2.send_gripper_message(False)
-
-            self.update()
+            print("all-preds" + str(len(all_preds)))
+            print("list" + str(len(list)))
             self._change_image()
+            self.canvas.all_preds = all_preds
+            self.canvas.repaint()
 
+            reception_ok = rospy.wait_for_message('validate_movement', Bool).data
 
 
 

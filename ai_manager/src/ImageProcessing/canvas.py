@@ -37,7 +37,7 @@ WIDTH = HEIGHT = 56
 dPoint = PerspectiveCalibration()
 dPoint.setup_camera()
 robot2 = Robot(Env_cam_bas)
-rospy.init_node('robotUR')
+rospy.init_node('explore2')
 myRobot = RobotUR()
 image_controller = ImageController(image_topic='/usb_cam2/image_raw')
 class Canvas(QWidget):
