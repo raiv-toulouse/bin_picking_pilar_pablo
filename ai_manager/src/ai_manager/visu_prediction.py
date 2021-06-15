@@ -25,7 +25,6 @@ class VisuPrediction(QWidget):
         image = QImage(req.data, req.width, req.height, format)
         self.image = image
 
-
     def _update_predictions(self,data):
         self.preds = data.predictions
         self.repaint()

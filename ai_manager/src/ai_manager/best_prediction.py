@@ -12,11 +12,20 @@ import torch
 from torchvision.transforms.functional import crop
 from torchvision import transforms
 from ImageProcessing.CNN import CNN
+import cv2
+import numpy as np
 
 INVALIDATION_RADIUS = 150  # When a prediction is selected, we invalidate all the previous predictions in this radius
 IMAGE_TOPIC = '/usb_cam/image_raw'
 CROP_WIDTH = CROP_HEIGHT = 56 # Size of cropped image
 MODEL_NAME = '/home/philippe/AAA/piece_model-epoch=02-val_loss=0.26-v0.ckpt'
+# min and max HSV values for color thresholding for object recognition (max S and V = 255, max H = 180)
+LOW_H = 20
+LOW_S = 20
+LOW_V = 20
+HIGH_H = 150
+HIGH_S = 180
+HIGH_V = 200
 
 class NodeBestPrediction:
     """
@@ -24,6 +33,13 @@ class NodeBestPrediction:
     * Service best_prediction_service : use a GetBestPrediction message (no input message and a ListOfPredictions output message)
     When this service is called, return the current best prediction and invalidate all the predictions in its neighborhood.
     * Publisher : publish on the 'predictions' topic a ListOfPredictions message
+
+    How to run?
+    * roslaunch usb_cam usb_cam-test.launch   (to provide a /usb_cam/image_raw topic)
+    * python visu_prediction.py   (to view the success/fail prediction points on the image)
+    * python best_prediction.py   (to provide a /predictions and /new_image topics)
+    * rosservice call /best_prediction_service  (to get the current best prediction. Il load a new image and invalidate the points in the picking zone)
+
     """
     def __init__(self):
         self.predictions = []
@@ -48,11 +64,11 @@ class NodeBestPrediction:
                 msg = Prediction()
                 msg.x = x
                 msg.y = y
-                msg.proba = random.random()    #self._predict(x, y)
+                msg.proba = random.random() #self._predict(x, y)
                 self.predictions.append(msg)
                 msg_list_pred.predictions = self.predictions
                 pub.publish(msg_list_pred)
-            rospy.sleep(0.00001)
+            rospy.sleep(0.001)
 
     def _ok_to_compute_proba(self, x, y):
         """ Return True if this (x,y) point is a good candidate i.e. is on an object and not in the picking zone"""
@@ -60,9 +76,15 @@ class NodeBestPrediction:
         if self.picking_point and self._distance(self.picking_point[0], self.picking_point[1] ,x ,y) < INVALIDATION_RADIUS:
             return False  # This point is inside the picking zone
         # Test if on an object
-
+        if self.object_image[y, x] == 0:
+            return False  # Not on an object (it is on a black pixel)
         return True
 
+    def _compute_object_image(self,pil_image):
+        opencv_rgb_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+        frame_HSV = cv2.cvtColor(opencv_rgb_image, cv2.COLOR_BGR2HSV)
+        self.object_image = cv2.inRange(frame_HSV, (LOW_H, LOW_S, LOW_V), (HIGH_H, HIGH_S, HIGH_V))
+        cv2.imwrite("test.png", self.object_image)
 
     def _load_model(self):
         """
@@ -81,7 +103,6 @@ class NodeBestPrediction:
         img = img.unsqueeze(0)  # To have a 4-dim tensor ([nb_of_images, channels, w, h])
         features, preds = self._evaluate_image(img, self.inference_model)
         pred = torch.exp(preds)
-        print(pred)
         return pred[0][1].item()  # Return the success probability
 
     @torch.no_grad()
@@ -100,7 +121,9 @@ class NodeBestPrediction:
         """
         msg_image = rospy.wait_for_message(IMAGE_TOPIC, Image)
         self.pub_image.publish(msg_image)
-        return self._to_pil(msg_image), msg_image.width, msg_image.height
+        pil_image = self._to_pil(msg_image)
+        self._compute_object_image(pil_image)
+        return pil_image, msg_image.width, msg_image.height
 
     def _to_pil(self, msg, display=False):
         size = (msg.width, msg.height)  # Image size
