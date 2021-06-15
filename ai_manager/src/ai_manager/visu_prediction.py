@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import random
 import rospy
 from ai_manager.msg import ListOfPredictions
+from sensor_msgs.msg import Image
 
 THRESHOLD = 0.5  # threshold for success grasping prediction
 
@@ -15,15 +15,26 @@ class VisuPrediction(QWidget):
         super().__init__()
         uic.loadUi("visu_prediction.ui",self)
         rospy.init_node('visu_prediction')
-        rospy.Subscriber("predictions", ListOfPredictions, self.update_predictions)
+        rospy.Subscriber("predictions", ListOfPredictions, self._update_predictions)
+        rospy.Subscriber('new_image', Image, self._change_image)
         self.preds = None
+        self.image = None
 
-    def update_predictions(self,data):
+    def _change_image(self, req):
+        format = QImage.Format_RGB888
+        image = QImage(req.data, req.width, req.height, format)
+        self.image = image
+
+
+    def _update_predictions(self,data):
         self.preds = data.predictions
         self.repaint()
 
     def paintEvent(self, event):
         qp = QPainter(self)
+        rect = event.rect()
+        if self.image:
+            qp.drawImage(rect, self.image, rect)
         if self.preds:
             for pred in self.preds:
                 x = pred.x

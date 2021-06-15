@@ -6,9 +6,17 @@ import math
 from ai_manager.srv import GetBestPrediction, GetBestPredictionResponse
 from ai_manager.msg import Prediction
 from ai_manager.msg import ListOfPredictions
+from PIL import Image as PILImage
+from sensor_msgs.msg import Image
+import torch
+from torchvision.transforms.functional import crop
+from torchvision import transforms
+from ImageProcessing.CNN import CNN
 
 INVALIDATION_RADIUS = 150  # When a prediction is selected, we invalidate all the previous predictions in this radius
-
+IMAGE_TOPIC = '/usb_cam/image_raw'
+CROP_WIDTH = CROP_HEIGHT = 56 # Size of cropped image
+MODEL_NAME = '/home/philippe/AAA/piece_model-epoch=02-val_loss=0.26-v0.ckpt'
 
 class NodeBestPrediction:
     """
@@ -21,25 +29,95 @@ class NodeBestPrediction:
         self.predictions = []
         msg_list_pred = ListOfPredictions()
         rospy.init_node('best_prediction')
-        s = rospy.Service('best_prediction_service', GetBestPrediction, self._get_best_prediction)
+        rospy.Service('best_prediction_service', GetBestPrediction, self._get_best_prediction)
         pub = rospy.Publisher('predictions', ListOfPredictions, queue_size=10)
+        self.pub_image = rospy.Publisher('new_image', Image, queue_size=10)
+        self._load_model()
+        self.picking_point = None # No picking point yet
+        self.image, self.width, self.height = self._get_image()  # Get the first image to process
+        self.transform = transforms.Compose([
+            transforms.Lambda(lambda img: self._crop_xy(img)),
+            transforms.Resize(size=256),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
         while not rospy.is_shutdown():
-            msg = Prediction()
-            msg.proba = random.random()
-            msg.x = random.randint(0, 640)
-            msg.y = random.randint(0, 480)
-            self.predictions.append(msg)
-            msg_list_pred.predictions = self.predictions
-            pub.publish(msg_list_pred)
-            rospy.sleep(0.001)
+            x = random.randint(int(CROP_WIDTH / 2), self.width - int(CROP_WIDTH / 2)) # for a (x,y) centered crop to fit in the image
+            y = random.randint(int(CROP_HEIGHT / 2), self.height - int(CROP_HEIGHT / 2))
+            if self._ok_to_compute_proba(x, y):
+                msg = Prediction()
+                msg.x = x
+                msg.y = y
+                msg.proba = random.random()    #self._predict(x, y)
+                self.predictions.append(msg)
+                msg_list_pred.predictions = self.predictions
+                pub.publish(msg_list_pred)
+            rospy.sleep(0.00001)
+
+    def _ok_to_compute_proba(self, x, y):
+        """ Return True if this (x,y) point is a good candidate i.e. is on an object and not in the picking zone"""
+        # Test if inside the picking zone
+        if self.picking_point and self._distance(self.picking_point[0], self.picking_point[1] ,x ,y) < INVALIDATION_RADIUS:
+            return False  # This point is inside the picking zone
+        # Test if on an object
+
+        return True
+
+
+    def _load_model(self):
+        """
+        Load a pretrained 'resnet18' model from a CKPT filename, freezed for inference
+        :return:
+        """
+        self.model = CNN(backbone='resnet18')
+        self.inference_model = self.model.load_from_checkpoint(MODEL_NAME)   #  Load the selected model
+        self.inference_model.freeze()
+
+    def _predict(self, x, y):
+        """ Predict probability and class for a cropped image at (x,y) """
+        self.predict_center_x = x
+        self.predict_center_y = y
+        img = self.transform(self.image)  # Get the cropped transformed image
+        img = img.unsqueeze(0)  # To have a 4-dim tensor ([nb_of_images, channels, w, h])
+        features, preds = self._evaluate_image(img, self.inference_model)
+        pred = torch.exp(preds)
+        print(pred)
+        return pred[0][1].item()  # Return the success probability
+
+    @torch.no_grad()
+    def _evaluate_image(self, image, model):
+        features, prediction = model(image)
+        return features.detach().numpy(), prediction.detach()
+
+    def _crop_xy(self, image):
+        """ Crop image at position (predict_center_x,predict_center_y) and with size (WIDTH,HEIGHT) """
+        return crop(image, self.predict_center_y - CROP_HEIGHT / 2, self.predict_center_x - CROP_WIDTH / 2, CROP_HEIGHT, CROP_WIDTH)  # top, left, height, width
+
+    def _get_image(self):
+        """
+        Recover an image from the IMAGE_TOPIC topic
+        :return: an RGB image
+        """
+        msg_image = rospy.wait_for_message(IMAGE_TOPIC, Image)
+        self.pub_image.publish(msg_image)
+        return self._to_pil(msg_image), msg_image.width, msg_image.height
+
+    def _to_pil(self, msg, display=False):
+        size = (msg.width, msg.height)  # Image size
+        img = PILImage.frombytes('RGB', size, msg.data)  # sensor_msg to Image
+        return img
 
     def _get_best_prediction(self, req):
+        """ best_prediction_service service callback which return a Prediction message (the best one)"""
+        # Get a new image to process
+        self.image, width, height = self._get_image()
         # Find best prediction
         best_pred = self.predictions[0]
         for pred in self.predictions:
             if pred.proba > best_pred.proba:
                 best_pred = pred
         self._invalidate_neighborhood(best_pred.x, best_pred.y)
+        self.picking_point = (best_pred.x, best_pred.y)
         return GetBestPredictionResponse(best_pred)
 
     def _invalidate_neighborhood(self, x, y):
@@ -49,18 +127,12 @@ class NodeBestPrediction:
         :param y:
         :return:
         """
-        self.predictions = [pred for pred in self.predictions if self._distance(pred, x, y) > INVALIDATION_RADIUS]
+        self.predictions = [pred for pred in self.predictions if self._distance(pred.x, pred.y, x, y) > INVALIDATION_RADIUS]
         
-    def _distance(self, pred, px, py):
-        """
-        Compute the distance between the prediction point (pred.x, pred.y) and the pick location (px, py)
-        :param pred: 
-        :param px: 
-        :param py: 
-        :return: 
-        """
-        dx = (pred.x - px) * (pred.x - px) 
-        dy = (pred.y - py) * (pred.y - py) 
+    def _distance(self, p1_x, p1_y, p2_x, p2_y):
+        """ Compute the distance between 2 points """
+        dx = (p1_x - p2_x) * (p1_x - p2_x)
+        dy = (p1_y - p2_y) * (p1_y - p2_y)
         return math.sqrt(dx + dy)
 
 if __name__ == '__main__':
