@@ -72,8 +72,8 @@ def click_event(event, x, y, flags, params):
         # Calcul du point visé par le click (position et orientation)
 
         pose_goal = Pose()
-        pose_goal.position.x = -(xyz[0][0]) / 100 + 0.5 / 100
-        pose_goal.position.y = -(xyz[1][0]) / 100 - 0.5 / 100
+        pose_goal.position.x = -(xyz[0][0]) / 100
+        pose_goal.position.y = -(xyz[1][0]) / 100
         pose_goal.position.z = 0.22
         pose_goal.orientation.x = -0.4952562586434166
         pose_goal.orientation.y = 0.49864161678730506

@@ -28,6 +28,7 @@ prev_img_shape = None
 # Extracting path of individual image stored in a given directory
 images = glob.glob(
     './loin/Essai5/*.jpg')
+
 for fname in images:
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -92,7 +93,9 @@ print(np.load(savedir + 'newcam_mtx.npy'))
 inverse_newcam_mtx = np.linalg.inv(new_camera_mtx)
 print("Inverse New Camera Matrix: \n")
 print(inverse_newcam_mtx)
-np.save(savedir + 'inverse_newcam_mtx.npy', inverse_newcam_mtx)
+np.save(savedir + 'inverse_newcam_mtx.npy', mtx)
+np.save(savedir + 'mtx.npy', inverse_newcam_mtx)
+np.save(savedir + 'new_camera_mtx.npy', new_camera_mtx)
 
 # Method 1 to undistort the image
 dst = cv2.undistort(img, mtx, dist, None, new_camera_mtx)

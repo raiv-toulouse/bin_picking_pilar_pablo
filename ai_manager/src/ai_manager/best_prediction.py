@@ -16,16 +16,16 @@ import cv2
 import numpy as np
 
 INVALIDATION_RADIUS = 150  # When a prediction is selected, we invalidate all the previous predictions in this radius
-IMAGE_TOPIC = '/usb_cam/image_raw'
+IMAGE_TOPIC = '/usb_cam2/image_raw'
 CROP_WIDTH = CROP_HEIGHT = 56 # Size of cropped image
-MODEL_NAME = '/home/philippe/AAA/piece_model-epoch=02-val_loss=0.26-v0.ckpt'
+MODEL_NAME = '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/model/resnet18/3000x224x56_NS_cyl.ckpt'
 # min and max HSV values for color thresholding for object recognition (max S and V = 255, max H = 180)
-LOW_H = 20
-LOW_S = 20
-LOW_V = 20
-HIGH_H = 150
-HIGH_S = 180
-HIGH_V = 200
+LOW_H = 0
+LOW_S = 0
+LOW_V = 40
+HIGH_H = 180
+HIGH_S = 18
+HIGH_V = 230
 
 class NodeBestPrediction:
     """
@@ -68,7 +68,7 @@ class NodeBestPrediction:
                 self.predictions.append(msg)
                 msg_list_pred.predictions = self.predictions
                 pub.publish(msg_list_pred)
-            rospy.sleep(0.001)
+            rospy.sleep(0.01)
 
     def _ok_to_compute_proba(self, x, y):
         """ Return True if this (x,y) point is a good candidate i.e. is on an object and not in the picking zone"""
@@ -76,8 +76,12 @@ class NodeBestPrediction:
         if self.picking_point and self._distance(self.picking_point[0], self.picking_point[1] ,x ,y) < INVALIDATION_RADIUS:
             return False  # This point is inside the picking zone
         # Test if on an object
-        if self.object_image[y, x] == 0:
-            return False  # Not on an object (it is on a black pixel)
+        # if self.object_image[y, x] == 0:
+        #     return False  # Not on an object (it is on a black pixel)
+        # test if it's on the box zone
+        if x < 380 or x > 930 or y < 260 or y > 690:
+            return False
+
         return True
 
     def _compute_object_image(self,pil_image):

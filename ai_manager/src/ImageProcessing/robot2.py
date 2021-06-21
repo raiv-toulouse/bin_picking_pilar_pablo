@@ -6,8 +6,8 @@ from std_msgs.msg import Bool
 from std_msgs.msg import Float32
 
 from ai_manager.Environment import Environment
-from ai_manager.Environment import Env1
-from ai_manager.Environment import Env2
+from ai_manager.Environment import Env_cam_bas
+
 
 from ai_manager.ImageController import ImageController
 from ur_icam_description.robotUR import RobotUR

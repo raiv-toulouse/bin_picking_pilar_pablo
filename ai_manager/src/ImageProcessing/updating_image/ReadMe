@@ -1,0 +1,14 @@
+
+
+
+Image imgupdate.png :
+
+
+
+Ce dossier comporte l'image utilisé par explore2.py (ligne 161 dans _change_image(self)) et random_picks_birdview.py (ligne 94 et 101). Cette image est prise par la caméra, transmise dans le topic usb_cam2/
+
+raw_image puis enregistrée ici afin de pouvoir l'ouvrir par la suite avec openCV et de pouvoir faire les transformations nécéssaire dans explore2 (on a eu des problème avec la capture via openCV directement,
+
+c'est pour cela qu'on utilise cette méthode).
+ 
+ L'image est actualisée sous le même nom (imgupdate.png) à chaque capture de la caméra pour n'avoir qu'un fichier image.

@@ -59,6 +59,9 @@ WIDTH = HEIGHT = 56 # Size of cropped image
 
 image_controller = ImageController(image_topic='/usb_cam2/image_raw')
 
+mtx = np.load('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/BlobDetector/camera_calibration/Camera_data/' + 'newcam_mtx.npy')
+dist = np.load('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/BlobDetector/camera_calibration/Camera_data/' + 'dist.npy')
+new_camera_mtx = np.load('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/BlobDetector/camera_calibration/Camera_data/' + 'new_camera_mtx.npy')
 def imshow(images, title=None, pil_image = False):
     """Imshow for Tensor."""
     if pil_image:
@@ -109,10 +112,10 @@ class MainWindow(QWidget):
 
 
 
-    @pyqtSlot(QImage)
-    def setImage(self, image):
-        self.label.setPixmap(QPixmap.fromImage(image))
-        self.th.writer.write(image)
+    # @pyqtSlot(QImage)
+    # def setImage(self, image):
+    #     self.label.setPixmap(QPixmap.fromImage(image))
+    #     self.th.writer.write(image)
 
     def _load_model(self):
         """ Load a new model """
@@ -138,9 +141,16 @@ class MainWindow(QWidget):
 
         # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
         image_path = '{}/img{}.png'.format("{}".format('./'),"update")  # FIFO queue
-
-        # sauvegarde de la photo
         img.save(image_path)
+        path = r'/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/updating_image/imgupdate.png'
+
+        # chargement de la photo avec OpenCV
+        frame = cv2.imread(path)
+        dst = cv2.undistort(frame, mtx, dist, None, new_camera_mtx)
+        # sauvegarde de la photo
+        cv2.imwrite(
+            os.path.join('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/updating_image',
+                         "imgupdate.png"), dst)
         fname = "imgupdate.png"
 
         self._set_image(fname)
@@ -158,10 +168,17 @@ class MainWindow(QWidget):
         img, width, height = image_controller.get_image()
 
         # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
-        image_path = '{}/img{}.png'.format("{}".format('./'), "update")  # FIFO queue
-
-        # sauvegarde de la photo
+        image_path = '{}/updating_image/img{}.png'.format("{}".format('./'), "update")  # FIFO queue
         img.save(image_path)
+        path = r'/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/updating_image/imgupdate.png'
+
+        # chargement de la photo avec OpenCV
+        frame = cv2.imread(path)
+        # Method 1 to undistort the image
+        dst = cv2.undistort(frame, mtx, dist, None, new_camera_mtx)
+        # sauvegarde de la photo
+        cv2.imwrite(os.path.join('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/updating_image',
+                                 "imgupdate.png"), dst)
         fname = "imgupdate.png"
 
         self._set_image(fname)
@@ -200,6 +217,7 @@ class MainWindow(QWidget):
     def _set_image(self, filename):
         self.canvas.set_image(filename)
         self.image = image.open(filename)
+        self.image
 
     def _crop_xy(self, image):
         """ Crop image at position (predict_center_x,predict_center_y) and with size (WIDTH,HEIGHT) """
@@ -267,39 +285,33 @@ class MainWindow(QWidget):
         list = []
         all_preds = self._compute_all_preds()
 
-        for i in range(1,3):
+        all_preds.sort(key=lambda pred: pred[2][0][1].item(), reverse=True)
+        print(len(all_preds))
+        self.canvas.all_preds = [all_preds[0]]
+        self.canvas.repaint()
 
-            all_preds.sort(key=lambda pred: pred[2][0][1].item(), reverse=True)
-            print(len(all_preds))
-            self.canvas.all_preds = all_preds
-            self.canvas.repaint()
+        image_coord = [all_preds[0][0], all_preds[0][1]]
+        print(image_coord)
 
-            image_coord = [all_preds[0][0], all_preds[0][1]]
-            print(image_coord)
+        xyz = dPoint.from_2d_to_3d(image_coord)
 
-            a = Int32MultiArray()
-            a.data = image_coord
-            Pub3.publish(a)
-            time.sleep(2)
-            compt = 0
+        goal_x = -xyz[0][0] / 100
+        goal_y = -xyz[1][0] / 100
 
-            for j in all_preds:
+        # calcul du déplacement à effectuer pour passer du point courant au point cible
+        move_x = goal_x - robot2.robot.get_current_pose().pose.position.x
+        move_y = goal_y - robot2.robot.get_current_pose().pose.position.y
 
-                if all_preds[0][0] - 200 < j[0] < all_preds[0][0] + 200 and all_preds[0][1] - 200 < j[1] < all_preds[0][1] + 200:
-                    all_preds.pop(compt)
-                else:
-                    list.append(all_preds[compt])
+        # mouvement vers le point cible
+        robot2.relative_move(move_x, move_y, 0)
 
-                compt = compt + 1
+        object_gripped = robot2.take_pick(no_rotation=True)
 
-            print("all-preds" + str(len(all_preds)))
-            print("list" + str(len(list)))
-            self._change_image()
-            self.canvas.all_preds = all_preds
-            self.canvas.repaint()
+        self.move_robot_to_take_pic()
 
-            reception_ok = rospy.wait_for_message('validate_movement', Bool).data
+        robot2.send_gripper_message(False)
 
+        self._change_image()
 
 
 

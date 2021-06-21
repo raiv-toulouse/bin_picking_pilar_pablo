@@ -71,39 +71,41 @@ class Canvas(QWidget):
             pos = event.pos()
             print(pos)
 
-            # on prend la photo
-            img, width, height = image_controller.get_image()
+            # enregistrement du crop au click
 
-            # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
-            image_path = '{}/img{}.png'.format(  # Saving image
-                "{}/success".format(
-                    '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/image_camHaute/Update_images'),
-                # Path
-                "update")  # FIFO queue
-
-            # sauvegarde de la photo
-            img.save(image_path)
-
-            # chemin d'accès à la photo prise
-            path = r'/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/image_camHaute/Update_images/success/imgupdate.png'
-
-            # chargement de la photo avec OpenCV
-            frame = cv2.imread(path)
-            center = [pos.x() + 112, pos.y() + 112]
-            h = 224
-            w = 224
-            y = pos.y() - 112
-            x = pos.x() - 112
-            crop = frame[y:y + h, x:x + w]
-
-            cv2.imshow("crop", crop)
-            cv2.waitKey(1000)
+            # # on prend la photo
+            # img, width, height = image_controller.get_image()
+            #
+            # # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
+            # image_path = '{}/img{}.png'.format(  # Saving image
+            #     "{}/success".format(
+            #         '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/image_camHaute/Update_images'),
+            #     # Path
+            #     "update")  # FIFO queue
+            #
+            # # sauvegarde de la photo
+            # img.save(image_path)
+            #
+            # # chemin d'accès à la photo prise
+            # path = r'/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/image_camHaute/Update_images/success/imgupdate.png'
+            #
+            # # chargement de la photo avec OpenCV
+            # frame = cv2.imread(path)
+            # center = [pos.x() + 112, pos.y() + 112]
+            # h = 224
+            # w = 224
+            # y = pos.y() - 112
+            # x = pos.x() - 112
+            # crop = frame[y:y + h, x:x + w]
+            #
+            # cv2.imshow("crop", crop)
+            # cv2.waitKey(1000)
 
             image_coord = [pos.x(), pos.y()]
             xyz = dPoint.from_2d_to_3d(image_coord)
             print(xyz)  # ok
-            goal_x = -xyz[0][0] / 100 + 0.7 / 100
-            goal_y = -xyz[1][0] / 100 + 2.2 / 100
+            goal_x = -xyz[0][0] / 100
+            goal_y = -xyz[1][0] / 100
 
             # calcul du déplacement à effectuer pour passer du point courant au point cible
             move_x = goal_x - robot2.robot.get_current_pose().pose.position.x
@@ -132,8 +134,8 @@ class Canvas(QWidget):
                 robot2.send_gripper_message(False)
 
                 # on sauvegarde l'image crop dans le dossier success
-                cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/success',
-                                         'success' + str(datetime.datetime.now()) + '.jpg'), crop)
+                # cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/success',
+                #                          'success' + str(datetime.datetime.now()) + '.jpg'), crop)
 
             else:
 
@@ -141,8 +143,8 @@ class Canvas(QWidget):
                 robot2.send_gripper_message(False)
 
                 # on sauvegarde l'image crop dans le dossier fail
-                cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/fail',
-                                         'fail' + str(datetime.datetime.now()) + '.jpg'), crop)
+                # cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/fail',
+                #                          'fail' + str(datetime.datetime.now()) + '.jpg'), crop)
 
 
             self.update()
