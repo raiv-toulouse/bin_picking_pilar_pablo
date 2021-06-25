@@ -18,14 +18,24 @@ import numpy as np
 INVALIDATION_RADIUS = 150  # When a prediction is selected, we invalidate all the previous predictions in this radius
 IMAGE_TOPIC = '/usb_cam2/image_raw'
 CROP_WIDTH = CROP_HEIGHT = 56 # Size of cropped image
-MODEL_NAME = '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/model/resnet18/3000x224x56_NS_cyl.ckpt'
+MODEL_NAME = '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/model/resnet18/Cylindresx4000.ckpt'
 # min and max HSV values for color thresholding for object recognition (max S and V = 255, max H = 180)
+
 LOW_H = 0
 LOW_S = 0
 LOW_V = 40
 HIGH_H = 180
 HIGH_S = 18
 HIGH_V = 230
+
+# LOW_H = 0
+# LOW_S = 0
+# LOW_V = 0
+# HIGH_H = 128
+# HIGH_S = 128
+# HIGH_V = 128
+
+
 
 class NodeBestPrediction:
     """
@@ -76,10 +86,10 @@ class NodeBestPrediction:
         if self.picking_point and self._distance(self.picking_point[0], self.picking_point[1] ,x ,y) < INVALIDATION_RADIUS:
             return False  # This point is inside the picking zone
         # Test if on an object
-        # if self.object_image[y, x] == 0:
-        #     return False  # Not on an object (it is on a black pixel)
+        if self.object_image[y, x] == 0:
+            return False  # Not on an object (it is on a black pixel)
         # test if it's on the box zone
-        if x < 380 or x > 930 or y < 260 or y > 690:
+        if x < 295 or x > 1000 or y < 260 or y > 690:
             return False
 
         return True

@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
         # préparation de la variable de sauvegarde (nom du fichier, dossier de sauvegarde...)
         image_path = '{}/img{}.png'.format(  # Saving image
-            "{}/success".format('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/updating_image'),  # Path
+            "{}".format('/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/updating_image'),  # Path
             "update")  # FIFO queue
 
         # sauvegarde de la photo
@@ -125,8 +125,8 @@ if __name__ == '__main__':
         xyz = dPoint.from_2d_to_3d(pixel_random)
 
         # calcul des coordonnées cibles (en m)
-        goal_x = -xyz[0][0] / 100
-        goal_y = -xyz[1][0] / 100
+        goal_x = -(xyz[0][0] / 100 - 1.7/ 100)
+        goal_y = -(xyz[1][0] / 100 - 0.4 / 100)
 
         # calcul du déplacement à effectuer pour passer du point courant au point cible
         move_x = goal_x - robot.robot.get_current_pose().pose.position.x
@@ -156,7 +156,7 @@ if __name__ == '__main__':
             robot.send_gripper_message(False)
 
             # on sauvegarde l'image crop dans le dossier success
-            cv2.imwrite(os.path.join('/home/student1/ros_pictures/500x224/success',
+            cv2.imwrite(os.path.join('/home/student1/ros_pictures/images_random_picks/success',
                                      'success'  + str(datetime.now()) + '.jpg'), crop)
 
         else:
@@ -165,7 +165,7 @@ if __name__ == '__main__':
             robot.send_gripper_message(False)
 
             # on sauvegarde l'image crop dans le dossier fail
-            cv2.imwrite(os.path.join('/home/student1/ros_pictures/500x224/fail',
+            cv2.imwrite(os.path.join('/home/student1/ros_pictures/images_random_picks/fail',
                                      'fail'  + str(datetime.now()) + '.jpg'), crop)
 
 

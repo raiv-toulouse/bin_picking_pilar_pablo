@@ -55,13 +55,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btn_pick">
-       <property name="text">
-        <string>Perform pick action</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QLabel" name="lbl_result">
        <property name="text">
         <string/>
@@ -131,6 +124,20 @@
         </widget>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_find_and_pick">
+       <property name="text">
+        <string>find and pick</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_webcam">
+       <property name="text">
+        <string>webcam</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="verticalSpacer">

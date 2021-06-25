@@ -117,35 +117,8 @@ class Canvas(QWidget):
             # Lancement de l'action de prise
             object_gripped = robot2.take_pick(no_rotation=True)
 
-            if object_gripped:
-
-                # création d'un point de lâcher aléatoire
-                release_goal_x = -random.randrange(30, 38) / 100
-                release_goal_y = -random.randrange(-9, 9) / 100
-
-                # calcul du déplacement à effectuer pour passer du point courant au point de lâcher
-                move_release_x = release_goal_x - robot2.robot.get_current_pose().pose.position.x
-                move_release_y = release_goal_y - robot2.robot.get_current_pose().pose.position.y
-
-                # mouvement vers le point de lâcher
-                robot2.relative_move(move_release_x, move_release_y, 0)
-
-                # on éteind la pompe
-                robot2.send_gripper_message(False)
-
-                # on sauvegarde l'image crop dans le dossier success
-                # cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/success',
-                #                          'success' + str(datetime.datetime.now()) + '.jpg'), crop)
-
-            else:
-
-                # on éteind la pompe
-                robot2.send_gripper_message(False)
-
-                # on sauvegarde l'image crop dans le dossier fail
-                # cv2.imwrite(os.path.join('/home/student1/ros_pictures/200x224/fail',
-                #                          'fail' + str(datetime.datetime.now()) + '.jpg'), crop)
-
+            self.parent.move_robot_to_take_pic()
+            robot2.send_gripper_message(False)
 
             self.update()
             self.parent._change_image()

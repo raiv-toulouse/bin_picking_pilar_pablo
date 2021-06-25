@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# Test de commande du robot avec des coordonées entrées au clavier
 
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import moveit_commander

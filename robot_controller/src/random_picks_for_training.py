@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"ATTENTION: ce fichier est une ancienne version du système de banque d'images avec une caméra embarquée, nous utilisons maintenant une caméra aérienne donc ce programme est obsolète il n'est présent qu'en qualité d'archive. Pour la banque d'image ce rendre dans le programme: random_picks_birdview.py"
 """
 Used to get picking images from random position. The images go to 'success' or 'fail'  folders, depending if the gripper succeed or not
 

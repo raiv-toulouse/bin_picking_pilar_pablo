@@ -39,13 +39,12 @@ class ImageModel:
         self.model = CNN(backbone=model_name)
         self.model_name = model_name
         # self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=100)
-        self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=self.dataset_size, data_dir='./image_camHaute/200x224')
+        self.image_module = MyImageModule(batch_size=self.batch_size, dataset_size=self.dataset_size, data_dir='./banque_images/PiecesPlatesx200')
         # Load images  ################################################
         self.image_module.setup()
         # For getting the features for the image
         self.activation = {}
-        # Save the model after every epoch by monitoring a quantity.
-        current_path = os.path.dirname(os.path.realpath(__file__))
+        # Save the model after every epoch by monitoring a quantity.      current_path = os.path.dirname(os.path.realpath(__file__))
         self.MODEL_CKPT_PATH = os.path.join(current_path, f'model/{self.model_name}/')
         self.MODEL_CKPT = os.path.join(self.MODEL_CKPT_PATH, 'model-{epoch:02d}-{val_loss:.2f}')
         # Tensorboard Logger used

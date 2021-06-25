@@ -1,31 +1,9 @@
 
 nomenclature des fichier model.ckpt
 
-La nomenclature suit cette logique:
+la nomenclature des fichiers comporte le type de pièce puis le nombre d'images qui ont servies à l'entrainement:
 
-nombreD'images x tailleDuCropInitial x tailleDuCropFinal.ckpt
-
-- nombreD'images correspond au nombre d'image avec lequel le réseaux qui à fourni le modèle à été entrainé
-
-- tailleDuCropInitial correspond à la taille du crop dans l'image entière lors de la réalisation de la banque d'image (à modifier/vérifier dans random_picks_birdview.py dans robot_controller)
-
-- tailleDuCropFinal correspond à la taille du crop réalisée lors des transformations des images avant l'entrainement (voir myImageModule.py dans ImageProcessing)
-
-voici un exemple: 
-
-1000x224x112.ckpt
-
-Il peut aussi y avoir des ajouts comme:
-
-- EQ qui signifie "équilibrée": il le réseau à été entrainé avec une banque d'images ayants exactement le même nombre de fail que de success
-
-- ST ou NS pour Supervised Training ou Non Supervised: fait la différence entre un réseau entrainé avec une banque d'image réalisé en aléatoire ou assistée pour avoir des situations précises (success ou fail)
-
-- cyl, plate.. qui donne le type de pièce utilise (cylindre, pièce plate...)
-
-exemple:
-
-1000x224x112_EQ_ST_cyl.ckpt
+ex: Cylindrex4000.ckpt
 
 ATTENTION!! :
 
@@ -33,4 +11,9 @@ Les modèles ayant un tailleDuCropFinal > 56 ne sont pas efficaces car il y a tr
 
 centerCrop ligne 26 et 33 dansmyImageModule.py dans ImageProcessing sur la machine DL. 
 
+Le meilleur modèle actuel est:
 
+ - pour les pièces cylindriques: Cylindrex4000.ckpt
+ - pour les pièces plates: PiecesPlatesx200.ckpt
+ 
+ Pour ceux reprenant la manipulation, il est conseillé de refaire la calibration ainsi que de nouvelles banques d'images.
