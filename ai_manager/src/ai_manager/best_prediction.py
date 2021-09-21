@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 
 INVALIDATION_RADIUS = 150  # When a prediction is selected, we invalidate all the previous predictions in this radius
-IMAGE_TOPIC = '/usb_cam2/image_raw'
+IMAGE_TOPIC = '/usb_cam/image_raw'
 CROP_WIDTH = CROP_HEIGHT = 56 # Size of cropped image
 MODEL_NAME = '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/ImageProcessing/model/resnet18/Cylindresx4000.ckpt'
 # min and max HSV values for color thresholding for object recognition (max S and V = 255, max H = 180)
