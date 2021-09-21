@@ -44,7 +44,8 @@ class ImageModel:
         self.image_module.setup()
         # For getting the features for the image
         self.activation = {}
-        # Save the model after every epoch by monitoring a quantity.      current_path = os.path.dirname(os.path.realpath(__file__))
+        # Save the model after every epoch by monitoring a quantity.
+        current_path = os.path.dirname(os.path.realpath(__file__))
         self.MODEL_CKPT_PATH = os.path.join(current_path, f'model/{self.model_name}/')
         self.MODEL_CKPT = os.path.join(self.MODEL_CKPT_PATH, 'model-{epoch:02d}-{val_loss:.2f}')
         # Tensorboard Logger used

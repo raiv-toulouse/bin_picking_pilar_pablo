@@ -42,17 +42,18 @@ from std_msgs.msg import Bool, Int32MultiArray
 # Création d'un objet de la classe PerspectiveCalibration
 
 dPoint = PerspectiveCalibration()
+print(1)
 dPoint.setup_camera()
-
+print(2)
 robot2 = Robot(Env_cam_bas)
-
+print(3)
 Pub3 = rospy.Publisher("pixel_coordinates", Int32MultiArray, queue_size=10)
-
+print(4)
 rospy.init_node('explore2')
 rate = rospy.Rate(0.5)
-
+print(5)
 myRobot = RobotUR()
-
+print(6)
 matplotlib.use('Qt5Agg')
 
 WIDTH = HEIGHT = 56 # Size of cropped image
@@ -85,12 +86,22 @@ class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
+        print(7)
         uic.loadUi("explore_ihm.ui",self) #needs the canvas.py file in the current directory
+        print(8)
         self.title = 'Camera'
         self.label = QLabel(self)
         lay = QVBoxLayout()
         lay.addWidget(self.label)
         self.setLayout(lay)
+
+        # # """ Load a new image """
+        # fname = QFileDialog.getOpenFileName(self, 'Open image file', '.', "Image files (*.jpg *.gif *.png)",
+        #                                     options=QFileDialog.DontUseNativeDialog)
+        # if fname[0]:
+        #     self.lbl_image_name.setText(os.path.basename(fname[0]))
+        #     self._set_image(fname[0])
+
 
         self.btn_change_image.clicked.connect(self._move_robot)
         # self.btn_pick.clicked.connect(self.predict)
@@ -111,7 +122,6 @@ class MainWindow(QWidget):
         self._load_model()
 
 
-
     # @pyqtSlot(QImage)
     # def setImage(self, image):
     #     self.label.setPixmap(QPixmap.fromImage(image))
@@ -128,12 +138,6 @@ class MainWindow(QWidget):
 
     def _move_robot(self):
 
-        # """ Load a new image """
-        # fname = QFileDialog.getOpenFileName(self, 'Open image file', '.', "Image files (*.jpg *.gif *.png)",
-        #                                     options=QFileDialog.DontUseNativeDialog)
-        # if fname[0]:
-        #     self.lbl_image_name.setText(os.path.basename(fname[0]))
-        #     self._set_image(fname[0])
 
         self.move_robot_to_take_pic()
 
