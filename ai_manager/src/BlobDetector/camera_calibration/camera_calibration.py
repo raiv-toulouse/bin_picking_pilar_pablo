@@ -9,7 +9,7 @@ import yaml
 # File only for camera_calibration, only need to do it once before using the rest of the programn.
 
 # workingdir="/home/pi/Desktop/Captures/"
-savedir = './Camera_data/'  # !!
+savedir = '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/BlobDetector/camera_calibration/Calibration_allimages'  # !!
 
 # Defining the dimensions of checkerboard
 CHECKERBOARD = (8, 6)
@@ -27,7 +27,7 @@ prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
 images = glob.glob(
-    './loin/Essai5/*.jpg')
+    '/home/student1/catkin_ws_noetic/src/bin_picking/ai_manager/src/BlobDetector/camera_calibration/Calibration_allimages/*.jpg')
 
 for fname in images:
     img = cv2.imread(fname)

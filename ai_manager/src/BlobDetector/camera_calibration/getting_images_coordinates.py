@@ -40,10 +40,10 @@ pose_init = Pose()
 pose_init.position.x = -41.005 / 100
 pose_init.position.y = -11.746 / 100
 pose_init.position.z = 0.22
-pose_init.orientation.x = -0.4952562586434166
-pose_init.orientation.y = 0.49864161678730506
-pose_init.orientation.z = 0.5082803126324129
-pose_init.orientation.w = 0.497723718615624
+pose_init.orientation.x = 0
+pose_init.orientation.y = 1
+pose_init.orientation.z = 0
+pose_init.orientation.w = 0
 myRobot.go_to_pose_goal(pose_init)
 
 def click_event(event, x, y, flags, params):
@@ -94,7 +94,7 @@ img2 = cv2.imread(image_path, 1)
 # displaying the image
 #cv2.imshow('image', img2)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(-1)
 cap.set(3, 1280)
 cap.set(4, 960)
 nom_fenetre = "webcam"

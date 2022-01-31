@@ -14,7 +14,7 @@ roslaunch ur3_moveit_config ur3_moveit_planning_execution.launch
 rosrun rosserial_arduino serial_node.py _port:=/dev/ttyACM0
 
 - launch program:
-python random_pick_birdview.py (in robot_controller/src)
+python random_picks_birdview.py (in robot_controller/src)
 
 """
 from PIL import Image as PILImage
@@ -41,7 +41,7 @@ from updateFrame import webcamImageGetter
 if __name__ == '__main__':
 
     # création d'un objet de la classe ImageController relatif à la prise de photo (dans ai_manager)
-    image_controller = ImageController(image_topic='/usb_cam2/image_raw')
+    image_controller = ImageController(image_topic='/usb_cam/image_raw')
 
     # création d'un objet de la classe PrepectiveCalibration (dans Blobdetector)
     dPoint = PerspectiveCalibration()
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # création d'une position initiale
     init_x = -28.195 / 100
     init_y = 19.085 / 100
-    init_z = 0.3
+    init_z = 0.25
 
     # calcul du déplacement à effectuer pour passer du point courant à la position initiale
     move_init_x = init_x - robot.robot.get_current_pose().pose.position.x
@@ -75,13 +75,21 @@ if __name__ == '__main__':
     pose_goal = Pose()
     pose_goal.position.x = robot.robot.get_current_pose().pose.position.x
     pose_goal.position.y = robot.robot.get_current_pose().pose.position.y
-    pose_goal.position.z = 0.3
-    pose_goal.orientation.x = -0.4952562586434166
-    pose_goal.orientation.y = 0.49864161678730506
-    pose_goal.orientation.z = 0.5082803126324129
-    pose_goal.orientation.w = 0.497723718615624
+    pose_goal.position.z = 0.25
+    pose_goal.orientation.x = 0
+    pose_goal.orientation.y = 1
+    pose_goal.orientation.z = 0
+    pose_goal.orientation.w = 0
+
+    PointList = []
 
     myRobot.go_to_pose_goal(pose_goal)
+    for i in range(279-112, 879):
+        for j in range(259-112, 638):
+            PointList.append([i, j])
+
+    PointList = PointList[::1000]
+
 
     # boucle du programme de prise d'image
     while True:
@@ -103,47 +111,72 @@ if __name__ == '__main__':
         # chargement de la photo avec OpenCV
         frame = cv2.imread(path)
 
+        for i in PointList:
+            center_coordinates = (i[0]+112, i[1]+112)
+            radius = 3
+            color = (0, 0, 255)
+            thickness = -1
+            frame = cv2.circle(frame, center_coordinates, radius, color, thickness)
+
         # taille du crop
         h = 224
         w = 224
 
+
+
         # création d'un point de coordonnées pixel random
-        x = random.randrange(320, 776)
-        y = random.randrange(204, 451)
-        print(x)
+        a = random.randrange(0,len(PointList))
+
+        x = PointList[a][0]
+        y = PointList[a][1]
+
 
         # calcul du centre de l'image crop
         pixel_random = [x + 112, y + 112]
+        frame = cv2.circle(frame, (x+112,y+112), radius, (0,255,0), thickness)
 
         # réalisation du crop
         crop = frame[y:y + h, x:x + w]
 
-        cv2.imshow("crop", crop)
+
+
+
+        cv2.imshow("crop", frame)
         cv2.waitKey(1000)
 
         # transposition des coordonnées pixel du point en coordonnées réelles dans le repère du robot
         xyz = dPoint.from_2d_to_3d(pixel_random)
+        xyz[-1] = -20
+        print('Les coordonnées en pixels X et Y sont: ', x, ';', y, '\n')
+        print('Les coordonnées réelles sont:', xyz)
+
+
 
         # calcul des coordonnées cibles (en m)
-        goal_x = -(xyz[0][0] / 100 - 1.7/ 100)
-        goal_y = -(xyz[1][0] / 100 - 0.4 / 100)
+        goal_x = -(xyz[0][0] / 100 ) #- 1.7/ 100)
+        goal_y = -(xyz[1][0] / 100 ) #- 0.4 / 100
 
         # calcul du déplacement à effectuer pour passer du point courant au point cible
+
         move_x = goal_x - robot.robot.get_current_pose().pose.position.x
         move_y = goal_y - robot.robot.get_current_pose().pose.position.y
 
+
+        print('STARTING RELATIVE MOVE')
         # mouvement vers le point cible
         robot.relative_move(move_x, move_y, 0)
-
+        print('RELATIVE MOVE FINISHED')
         # Lancement de l'action de prise
         object_gripped = robot.take_pick(no_rotation=True)
 
         # Si un objet est attrapé
-        if object_gripped:
+        if object_gripped == True:
 
             # création d'un point de lâcher aléatoire
-            release_goal_x = -random.randrange(30,38)/100
-            release_goal_y = -random.randrange(-9, 9)/100
+            # release_goal_x = -random.randrange(40,45)/100
+            # release_goal_y = -random.randrange(-9, 9)/100
+            release_goal_x = -0.4
+            release_goal_y = -0.2
 
             # calcul du déplacement à effectuer pour passer du point courant au point de lâcher
             move_release_x = release_goal_x - robot.robot.get_current_pose().pose.position.x
@@ -170,7 +203,9 @@ if __name__ == '__main__':
 
 
         print("target reached")
+        print('Length of PointList :' , len(PointList))
 
+        del PointList[a]
 
         # calcul du déplacement à effectuer pour passer du point courant au point de décalage
         move_init_x = init_x - robot.robot.get_current_pose().pose.position.x

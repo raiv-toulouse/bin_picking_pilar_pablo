@@ -46,11 +46,11 @@ class Robot:
         """
         waypoints = []
         wpose = self.robot.get_current_pose().pose
-        if x:
-            wpose.position.x += x  # First move up (x)
-            waypoints.append(copy.deepcopy(wpose))
         if y:
             wpose.position.y += y  # Second move forward/backwards in (y)
+            waypoints.append(copy.deepcopy(wpose))
+        if x:
+            wpose.position.x += x  # First move up (x)
             waypoints.append(copy.deepcopy(wpose))
         if z:
             wpose.position.z += z  # Third move sideways (z)
@@ -103,13 +103,14 @@ class Robot:
         self.relative_move(0, distance, 0)
 
     def take_random_state(self):
-        # Move robot to random positions using relative moves. Get coordinates
-        relative_coordinates = Environment(self.env).generate_random_state(self.environment_image, self.random_state_strategy)
-        # Calculate the new coordinates
-        x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
-
-        # Move the robot to the random state
-        self.relative_move(x_movement, y_movement, 0)
+        # # Move robot to random positions using relative moves. Get coordinates
+        # relative_coordinates = Environment(self.env).generate_random_state(self.environment_image, self.random_state_strategy)
+        # # Calculate the new coordinates
+        # x_movement, y_movement = self.calculate_relative_movement(relative_coordinates)
+        #
+        # # Move the robot to the random state
+        # self.relative_move(x_movement, y_movement, 0)
+        pass
 
     def take_random_state_fall(self):
         # Move robot to random positions using relative moves. Get coordinates
@@ -137,7 +138,7 @@ class Robot:
         time.sleep(timer/2)
 
     # Action pick: Pick and place
-    def take_pick(self, no_rotation = False):
+    def take_pick(self, no_rotation = True):
         # The robot goes down until the gripper touch something (table or object)
         # Detection provided by /contact topic
         # If no_rotation = True, it means that the gripper must release the object and mustn't turn. To be used in recording images for NN training
@@ -240,7 +241,7 @@ class Robot:
         back_to_original_pose(self)  # Back to the original pose
 
         object_gripped = rospy.wait_for_message('object_gripped', Bool).data
-        '''
+
         if object_gripped and no_rotation == False:  # If we have gripped an object we place it into the desired point
             self.take_place()
         
@@ -249,16 +250,14 @@ class Robot:
             #robot2.go_to_initial_pose()
             self.take_random_state()
 
-            self.send_gripper_message(False)  # We turn off the gripper
+            # self.send_gripper_message(False)  # We turn off the gripper
 
         else:
-            print("objet attrapé")
+            #print("objet attrapé")
             #robot2.go_to_initial_pose()
             #robot2.take_random_state_fall()
-
             self.send_gripper_message(False)  # We turn off the gripper
-        '''
-
+        print(object_gripped)
         return object_gripped
 
     # Function to define the place for placing the grasped objects

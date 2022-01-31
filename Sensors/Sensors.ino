@@ -25,7 +25,7 @@ const int led4_pin = 5;
 
 const int object_gripped_pin = 10;  // Used to read if the Vacuum Gripper has got an object
 //const int distance_pin = 8;   // Used to read the distance between Vacuum Gripper and objects
-const int contact_pin = 8;   // Used to read the distance between Vacuum Gripper and objects
+const int contact_pin = 6;   // Used to read the distance between Vacuum Gripper and objects
 
 boolean contact;
 
