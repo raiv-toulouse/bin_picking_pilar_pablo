@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--  Load a webcam on Gazebo which provides a /ur5/usbcam/image_raw topic
+ rosrun image_view image_view image:=/ur5/usbcam/image_raw
+ -->
+<launch>
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="verbose" value="true"/>
+    <arg name="world_name" value="$(find ur_icam_gazebo)/worlds/env_test_webcam.world"/>
+    <!-- more default parameters can be changed here -->
+  </include>
+</launch>
